@@ -17,8 +17,8 @@ const SignThings = (props) => {
         pub: ""
     });
 
-    const BEGIN_PRIV_KEY = "-----BEGIN PRIVATE KEY-----\n";
-    const END_PRIV_KEY = "\n-----END PRIVATE KEY-----";
+    const BEGIN_PRIV_KEY = "-----BEGIN ENCRYPTED PRIVATE KEY-----\n";
+    const END_PRIV_KEY = "\n-----END ENCRYPTED PRIVATE KEY-----";
 
     useEffect(() => {
         regenerateKeys();
@@ -33,15 +33,12 @@ const SignThings = (props) => {
             window.crypto.subtle.exportKey('pkcs8', keys.privateKey).then((pem) => {
                 setSigningKey({...signingKey, priv: pem});
 
-                let buffer = Buffer.from(pem);
+                let exportStr = String.fromCharCode.apply(null, new Uint8Array(pem));
+                let exportB64 = window.btoa(exportStr);
                 setSigningText({
-                    ...signingText, 
-                    priv: BEGIN_PRIV_KEY + Buffer.from(buffer).toString('base64') + END_PRIV_KEY
+                    ...signingText,
+                    priv: `${BEGIN_PRIV_KEY}${exportB64}${END_PRIV_KEY}`
                 });
-            });
-
-            window.crypto.subtle.exportKey('spki', keys.publicKey).then((pub) => {
-                setSigningKey({...signingKey, pub: pub});
             });
         });
     };
@@ -56,10 +53,21 @@ const SignThings = (props) => {
             let hash1 = hashy.update(buffer, 'utf8');
             let sha1ID = hash1.digest().slice(0, 4).toString('hex');
 
-            /**
-             * TODO : figure out how to compel download of pem string 
-             */
+            // initiate download in browser client
+            download('handshake-signing-'+sha1ID+".pem", signingText.priv);
+            // regen keys. we don't need this one anymore
+            regenerateKeys();
         });
+    };
+
+    const download = (filename, text) => {
+        let e = document.createElement('a');
+        e.setAttribute('href', `data:text/plain;charset=utf-8,${encodeURIComponent(text)}`);
+        e.setAttribute('download', filename);
+        e.style.display = 'none';
+        document.body.appendChild(e);
+        e.click();
+        document.body.removeChild(e);
     };
 
     return (
