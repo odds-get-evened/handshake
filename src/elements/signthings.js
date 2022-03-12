@@ -1,97 +1,107 @@
-import React, { useEffect, useState } from 'react';
+import 'regenerator-runtime';
 import {
-    Button,
-    ButtonGroup,
-    Card, Form, Stack
+    Form, Stack,
+    Button, Card, ButtonGroup
 } from 'react-bootstrap';
+import { generateKey } from 'openpgp';
+import React, { useState, useRef, useEffect } from 'react';
+import JSZip from 'jszip';
 import crypto from 'crypto';
+import {saveAs} from 'file-saver';
 
-const SignThings = (props) => {
-    const [signingKey, setSigningKey] = useState({
-        priv: null,
-        pub: null
-    });
-
-    const [signingText, setSigningText] = useState({
-        priv: "",
-        pub: ""
-    });
-
-    const BEGIN_PRIV_KEY = "-----BEGIN ENCRYPTED PRIVATE KEY-----\n";
-    const END_PRIV_KEY = "\n-----END ENCRYPTED PRIVATE KEY-----";
+const Signthings = (props) => {
+    const refPassphrase = useRef();
+    const refGenBtn = useRef();
+    const [valSignPub, setValSignPub] = useState('');
+    const [valSignPriv, setValSignPriv] = useState('');
+    const [isDisabledGenSign, setIsDisabledGenSign] = useState(true);
+    const [isDisabledDL, setIsDisabledDL] = useState(true);
+    const [tag, setTag] = useState('');
 
     useEffect(() => {
-        regenerateKeys();
-        return;
-    }, []);
+        setTag(crypto.randomBytes(4).toString('hex'));
+    }, [null]);
 
-    const regenerateKeys = () => {
-        window.crypto.subtle.generateKey({
-            name: 'ECDSA',
-            namedCurve: 'P-384'
-        }, true, ['sign', 'verify']).then((keys) => {
-            window.crypto.subtle.exportKey('pkcs8', keys.privateKey).then((pem) => {
-                setSigningKey({...signingKey, priv: pem});
+    const generateSigning = () => {
+        console.log("DEBUG :: " + refPassphrase.current.value);
+        generateKey({
+            type: 'ecc',
+            curve: 'curve25519',
+            userIDs: [{name: 'Chris Walsh', email: 'chris.is.rad@pm.me'}],
+            passphrase: refPassphrase.current.value,
+            format: 'armored'
+        }).then((res) => {
+            setValSignPriv(res.privateKey);
+            setValSignPub(res.publicKey);
 
-                let exportStr = String.fromCharCode.apply(null, new Uint8Array(pem));
-                let exportB64 = window.btoa(exportStr);
-                setSigningText({
-                    ...signingText,
-                    priv: `${BEGIN_PRIV_KEY}${exportB64}${END_PRIV_KEY}`
-                });
+            // enable download buton
+            setIsDisabledDL(false);
+        });
+    };
+
+    const changePassphrase = (e) => {
+        let v = e.target.value.trim(); 
+        
+        setIsDisabledGenSign(!(v.length > 1));
+    };
+
+    const cleanUp = () => {
+        setValSignPriv('');
+        setValSignPub('');
+        setTag(crypto.randomBytes(4).toString('hex'));
+        refPassphrase.current.value = '';
+    };
+
+    const downloadSigning = (e) => {
+        let zip = new JSZip();
+        
+        zip.file("handshake-" + tag + ".priv", valSignPriv);
+        zip.file("handshake-" + tag + ".pub", valSignPub);
+
+        if(JSZip.support.uint8array) {
+            zip.generateAsync({type: 'blob'}).then((blob) => {
+                saveAs(blob, "handshake-" + tag + ".zip");
+
+                // cleanup
+                cleanUp();
             });
-        });
-    };
-
-    const clickRegenerateKeys = (e) => {
-        regenerateKeys();
-    };
-
-    const clickDownloadKey = (e) => {
-        let hashy = crypto.createHash('sha1');
-        crypto.randomBytes(4, (error, buffer) => {
-            let hash1 = hashy.update(buffer, 'utf8');
-            let sha1ID = hash1.digest().slice(0, 4).toString('hex');
-
-            // initiate download in browser client
-            download('handshake-signing-'+sha1ID+".pem", signingText.priv);
-            // regen keys. we don't need this one anymore
-            regenerateKeys();
-        });
-    };
-
-    const download = (filename, text) => {
-        let e = document.createElement('a');
-        e.setAttribute('href', `data:text/plain;charset=utf-8,${encodeURIComponent(text)}`);
-        e.setAttribute('download', filename);
-        e.style.display = 'none';
-        document.body.appendChild(e);
-        e.click();
-        document.body.removeChild(e);
+        }
     };
 
     return (
-        <Stack direction='vertical' gap={5}>
-            <Card style={{padding: '20px'}}>
-                <Card.Title>signing things.</Card.Title>
-                <Stack direction='vertical' gap={5}>
-                    <Form>
-                        <Form.Group controlId='signinForm.privateKeyInput'>
-                            <Form.Label>private key (PEM)</Form.Label>
-                            <Form.Control disabled as='textarea' value={signingText.priv} style={{minHeight: '200px'}} />
-                            <Form.Text muted>
-                                this is a secret. download it to a file DO NOT lose it.
-                            </Form.Text>
-                        </Form.Group>
-                    </Form>
-                </Stack>
-                <ButtonGroup aria-label="buttons and stuff">
-                    <Button onClick={clickRegenerateKeys} variant='secondary'>regenerate!</Button>
-                    <Button onClick={clickDownloadKey} variant='primary'>download</Button>
+        <Card>
+            <Card.Title>signing things</Card.Title>
+            <Stack direction='vertical' gap={5}>
+                <Form>
+                    <Form.Group controlId='signing.passPhrase'>
+                        <Form.Label>passphrase/salt</Form.Label>
+                        <Form.Control onChange={changePassphrase} ref={refPassphrase} />
+                        <Form.Text>enter a password or just some random text</Form.Text>
+                    </Form.Group>
+                    <Form.Group controlId='signing.privateKey'>
+                        <Form.Label>private key</Form.Label>
+                        <Form.Control value={valSignPriv} disabled readOnly as='textarea' style={{ minHeight: '200px' }} />
+                    </Form.Group>
+                    <Stack direction='horizontal' gap={5}>
+                        <Button variant='secondary'>copy</Button>
+                    </Stack>
+                    <Form.Group controlId='signing.publicKey'>
+                        <Form.Label>public key</Form.Label>
+                        <Form.Control value={valSignPub} disabled readOnly as='textarea' style={{ minHeight: '200px' }} />
+                    </Form.Group>
+                    <Stack direction='horizontal' gap={5}>
+                        <Button variant='secondary'>copy</Button>
+                    </Stack>
+                </Form>
+                <ButtonGroup>
+                    <Button ref={refGenBtn} disabled={isDisabledGenSign} onClick={generateSigning} variant='primary'>generate</Button>
+                    <Button variant='secondary' disabled={isDisabledDL} onClick={downloadSigning}>download</Button>
+                    <Button variant='danger' onClick={cleanUp}>reset</Button>
                 </ButtonGroup>
-            </Card>
-        </Stack>
+                <div>tag: {tag}</div>
+            </Stack>
+        </Card>
     );
 };
 
-export default SignThings;
+export default Signthings;
