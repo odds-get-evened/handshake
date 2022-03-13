@@ -7,8 +7,6 @@ import {
 import Signthings from './elements/signthings';
 
 const Main = (props) => {
-    
-
     return (
         <Container>
             <Row>

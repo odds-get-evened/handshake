@@ -1,6 +1,6 @@
 import 'regenerator-runtime';
 import {
-    Form, Stack,
+    Form, Stack, FloatingLabel,
     Button, Card, ButtonGroup
 } from 'react-bootstrap';
 import { generateKey } from 'openpgp';
@@ -46,6 +46,8 @@ const Signthings = (props) => {
     };
 
     const cleanUp = () => {
+        setIsDisabledDL(true);
+        setIsDisabledGenSign(true);
         setValSignPriv('');
         setValSignPub('');
         setTag(crypto.randomBytes(4).toString('hex'));
@@ -69,38 +71,54 @@ const Signthings = (props) => {
     };
 
     return (
-        <Card>
-            <Card.Title>signing things</Card.Title>
-            <Stack direction='vertical' gap={5}>
-                <Form>
-                    <Form.Group controlId='signing.passPhrase'>
-                        <Form.Label>passphrase/salt</Form.Label>
-                        <Form.Control onChange={changePassphrase} ref={refPassphrase} />
-                        <Form.Text>enter a password or just some random text</Form.Text>
-                    </Form.Group>
-                    <Form.Group controlId='signing.privateKey'>
-                        <Form.Label>private key</Form.Label>
-                        <Form.Control value={valSignPriv} disabled readOnly as='textarea' style={{ minHeight: '200px' }} />
-                    </Form.Group>
-                    <Stack direction='horizontal' gap={5}>
-                        <Button variant='secondary'>copy</Button>
-                    </Stack>
-                    <Form.Group controlId='signing.publicKey'>
-                        <Form.Label>public key</Form.Label>
-                        <Form.Control value={valSignPub} disabled readOnly as='textarea' style={{ minHeight: '200px' }} />
-                    </Form.Group>
-                    <Stack direction='horizontal' gap={5}>
-                        <Button variant='secondary'>copy</Button>
-                    </Stack>
-                </Form>
-                <ButtonGroup>
-                    <Button ref={refGenBtn} disabled={isDisabledGenSign} onClick={generateSigning} variant='primary'>generate</Button>
-                    <Button variant='secondary' disabled={isDisabledDL} onClick={downloadSigning}>download</Button>
-                    <Button variant='danger' onClick={cleanUp}>reset</Button>
-                </ButtonGroup>
-                <div>tag: {tag}</div>
-            </Stack>
-        </Card>
+        <Stack direction='horizontal' gap={5}>
+            <Card>
+                <Card.Title>signing things</Card.Title>
+                <Stack direction='vertical' gap={5}>
+                    <Form>
+                        <Form.Group controlId='signing.passPhrase'>
+                            <FloatingLabel label='passphares/salt'>
+                                <Form.Control onChange={changePassphrase} ref={refPassphrase} />
+                            </FloatingLabel>
+                            <Form.Text>enter a password or just some random text</Form.Text>
+                        </Form.Group>
+                        <Form.Group controlId='signing.privateKey'>
+                            <FloatingLabel label='private key'>
+                                <Form.Control value={valSignPriv} disabled readOnly as='textarea' style={{ minHeight: '200px' }} />
+                            </FloatingLabel>
+                            <Form.Text muted>do not share this ever! ssshh it's a secret. hide it away in your happy place.</Form.Text>
+                        </Form.Group>
+                        <Form.Group controlId='signing.publicKey'>
+                            <FloatingLabel label='public key'>
+                                <Form.Control value={valSignPub} disabled readOnly as='textarea' style={{ minHeight: '200px' }} />
+                            </FloatingLabel>
+                            <Form.Text muted>this is ok to share with anyone. you can always make more</Form.Text>
+                        </Form.Group>
+                    </Form>
+                    <ButtonGroup>
+                        <Button ref={refGenBtn} disabled={isDisabledGenSign} onClick={generateSigning} variant='primary'>generate</Button>
+                        <Button variant='secondary' disabled={isDisabledDL} onClick={downloadSigning}>download</Button>
+                        <Button variant='danger' onClick={cleanUp}>reset</Button>
+                    </ButtonGroup>
+                    <div>tag: {tag}</div>
+                </Stack>
+            </Card>
+            <Card>
+                <Card.Title>sign something!</Card.Title>
+                <Stack direction='vertical' gap={5}>
+                    <Form>
+                        <Form.Group controlId='signing.message'>
+                            <FloatingLabel label='message to sign'>
+                                <Form.Control as='textarea' style={{minHeight: '150px'}} />
+                            </FloatingLabel>
+                        </Form.Group>
+                    </Form>
+                    <ButtonGroup>
+                        <Button>gimme your key!</Button>
+                    </ButtonGroup>
+                </Stack>
+            </Card>
+        </Stack>
     );
 };
 
