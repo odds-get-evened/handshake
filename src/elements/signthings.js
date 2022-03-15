@@ -5,7 +5,7 @@ import {
 } from 'react-bootstrap';
 import { generateKey } from 'openpgp';
 import React, { useState, useRef, useEffect } from 'react';
-import JSZip from 'jszip';
+import JSZip, { file } from 'jszip';
 import crypto from 'crypto';
 import {saveAs} from 'file-saver';
 
@@ -70,6 +70,17 @@ const Signthings = (props) => {
         }
     };
 
+    const handleKeyUpload = (e) => {
+        e.target.files.item(0).arrayBuffer().then((bin) => {
+            // bin arraybuffer
+            JSZip.loadAsync(bin).then((u) => {
+                u.folder('').file(/.*\.priv$/)[0].async('string').then((block) => setValSignPriv(block));
+
+                u.folder('').file(/.*\.pub$/)[0].async('string').then((block) => setValSignPub(block));
+            });
+        });
+    };
+
     return (
         <Stack direction='horizontal' gap={5}>
             <Card>
@@ -113,9 +124,8 @@ const Signthings = (props) => {
                             </FloatingLabel>
                         </Form.Group>
                     </Form>
-                    <ButtonGroup>
-                        <Button>gimme your key!</Button>
-                    </ButtonGroup>
+                    <input type="file" ref={el => (refGimmeUrKey = el)} onChange={handleKeyUpload} style={{display: 'none'}} />
+                    <Button onClick={(e) => {refGimmeUrKey.click()}}>gimme your key!</Button>
                 </Stack>
             </Card>
         </Stack>
