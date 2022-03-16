@@ -12,15 +12,23 @@ import {saveAs} from 'file-saver';
 const Signthings = (props) => {
     const refPassphrase = useRef();
     const refGenBtn = useRef();
+    const refSigningMsg = useRef();
+
     const [valSignPub, setValSignPub] = useState('');
     const [valSignPriv, setValSignPriv] = useState('');
+    const [tag, setTag] = useState('');
+    const [signingMsg, setSigningMsg] = useState('');
+
     const [isDisabledGenSign, setIsDisabledGenSign] = useState(true);
     const [isDisabledDL, setIsDisabledDL] = useState(true);
-    const [tag, setTag] = useState('');
+    const [isDisabledSI, setIsDisabledSI] = useState(true);
 
     useEffect(() => {
         setTag(crypto.randomBytes(4).toString('hex'));
-    }, [null]);
+
+        if(signingMsg == "") setIsDisabledSI(true);
+        else setIsDisabledSI(false);
+    }, [signingMsg]);
 
     const generateSigning = () => {
         console.log("DEBUG :: " + refPassphrase.current.value);
@@ -74,11 +82,19 @@ const Signthings = (props) => {
         e.target.files.item(0).arrayBuffer().then((bin) => {
             // bin arraybuffer
             JSZip.loadAsync(bin).then((u) => {
-                u.folder('').file(/.*\.priv$/)[0].async('string').then((block) => setValSignPriv(block));
+                // we don't want to provide a private key back to public space
+                //u.folder('').file(/.*\.priv$/)[0].async('string').then((block) => setValSignPriv(block));
 
-                u.folder('').file(/.*\.pub$/)[0].async('string').then((block) => setValSignPub(block));
+                u.folder('').file(/.*\.pub$/)[0].async('string').then((block) => {
+                    setValSignPub(block);
+                });
             });
         });
+    };
+
+    const changeSigningMsg = (e) => {
+        console.log(e.target.value.trim());
+        setSigningMsg(e.target.value.trim());
     };
 
     return (
@@ -120,12 +136,16 @@ const Signthings = (props) => {
                     <Form>
                         <Form.Group controlId='signing.message'>
                             <FloatingLabel label='message to sign'>
-                                <Form.Control as='textarea' style={{minHeight: '150px'}} />
+                                <Form.Control ref={refSigningMsg} onChange={changeSigningMsg} as='textarea' style={{minHeight: '150px'}} />
                             </FloatingLabel>
                         </Form.Group>
                     </Form>
                     <input type="file" ref={el => (refGimmeUrKey = el)} onChange={handleKeyUpload} style={{display: 'none'}} />
-                    <Button onClick={(e) => {refGimmeUrKey.click()}}>gimme your key!</Button>
+                    <ButtonGroup>
+                        <Button onClick={(e) => {refGimmeUrKey.click()}}>gimme your key!</Button>
+                        <Button disabled={isDisabledSI}>sign it!</Button>
+                    </ButtonGroup>
+                    
                 </Stack>
             </Card>
         </Stack>
