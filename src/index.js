@@ -4,14 +4,14 @@ import ReactDOM from 'react-dom';
 import {
     Container, Row, Col
 } from 'react-bootstrap';
-import Signthings from './elements/signthings';
+import Signing from './elements/signing';
 
 const Main = (props) => {
     return (
         <Container>
             <Row>
                 <Col lg={12}>
-                    <Signthings />
+                    <Signing />
                 </Col>
             </Row>
         </Container>

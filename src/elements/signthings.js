@@ -1,4 +1,3 @@
-import 'regenerator-runtime';
 import {
     Form, Stack, FloatingLabel,
     Button, Card, ButtonGroup
@@ -13,11 +12,17 @@ const Signthings = (props) => {
     const refPassphrase = useRef();
     const refGenBtn = useRef();
     const refSigningMsg = useRef();
+    const refName = useRef();
+    const refEmail = useRef();
 
     const [valSignPub, setValSignPub] = useState('');
     const [valSignPriv, setValSignPriv] = useState('');
+    const [signPriv, setSignPriv] = useState(null);
     const [tag, setTag] = useState('');
     const [signingMsg, setSigningMsg] = useState('');
+    const [signingName, setSigningName] = useState('');
+    const [signingEmail, setSigningEmail] = useState('');
+    const [signingPass, setSigningPass] = useState('');
 
     const [isDisabledGenSign, setIsDisabledGenSign] = useState(true);
     const [isDisabledDL, setIsDisabledDL] = useState(true);
@@ -31,11 +36,17 @@ const Signthings = (props) => {
     }, [signingMsg]);
 
     const generateSigning = () => {
-        console.log("DEBUG :: " + refPassphrase.current.value);
+        /**
+         * TODO : add name and email field
+         */
+        console.log("pass phrase :: " + refPassphrase.current.value);
+        console.log("name: " + signingName);
+        console.log("email: " + signingEmail);
+
         generateKey({
             type: 'ecc',
             curve: 'curve25519',
-            userIDs: [{name: 'Chris Walsh', email: 'chris.is.rad@pm.me'}],
+            userIDs: [{name: signingName, email: signingEmail}],
             passphrase: refPassphrase.current.value,
             format: 'armored'
         }).then((res) => {
@@ -48,9 +59,7 @@ const Signthings = (props) => {
     };
 
     const changePassphrase = (e) => {
-        let v = e.target.value.trim(); 
         
-        setIsDisabledGenSign(!(v.length > 1));
     };
 
     const cleanUp = () => {
@@ -58,8 +67,12 @@ const Signthings = (props) => {
         setIsDisabledGenSign(true);
         setValSignPriv('');
         setValSignPub('');
+        setSigningEmail('');
+        setSigningName('');
         setTag(crypto.randomBytes(4).toString('hex'));
         refPassphrase.current.value = '';
+        refName.current.value = '';
+        refEmail.current.value = '';
     };
 
     const downloadSigning = (e) => {
@@ -83,7 +96,7 @@ const Signthings = (props) => {
             // bin arraybuffer
             JSZip.loadAsync(bin).then((u) => {
                 // we don't want to provide a private key back to public space
-                //u.folder('').file(/.*\.priv$/)[0].async('string').then((block) => setValSignPriv(block));
+                u.folder('').file(/.*\.priv$/)[0].async('string').then((block) => setValSignPriv(block));
 
                 u.folder('').file(/.*\.pub$/)[0].async('string').then((block) => {
                     setValSignPub(block);
@@ -93,8 +106,19 @@ const Signthings = (props) => {
     };
 
     const changeSigningMsg = (e) => {
-        console.log(e.target.value.trim());
         setSigningMsg(e.target.value.trim());
+    };
+
+    const clickSignIt = (e) => {
+        console.log(valSignPub);
+    };
+
+    const changeName = (e) => {
+        setSigningName(e.target.value.trim());
+    };
+
+    const changeEmail = (e) => {
+        setSigningEmail(e.target.value.trim());
     };
 
     return (
@@ -103,6 +127,18 @@ const Signthings = (props) => {
                 <Card.Title>signing things</Card.Title>
                 <Stack direction='vertical' gap={5}>
                     <Form>
+                        <Form.Group controlId='signing.username'>
+                            <FloatingLabel label='name'>
+                                <Form.Control onChange={changeName} ref={refName} />
+                            </FloatingLabel>
+                            <Form.Text>enter your name or a username</Form.Text>
+                        </Form.Group>
+                        <Form.Group controlId='signing.email'>
+                            <FloatingLabel label='email address'>
+                                <Form.Control onChange={changeEmail} ref={refEmail} />
+                            </FloatingLabel>
+                            <Form.Text>enter an email.</Form.Text>
+                        </Form.Group>
                         <Form.Group controlId='signing.passPhrase'>
                             <FloatingLabel label='passphares/salt'>
                                 <Form.Control onChange={changePassphrase} ref={refPassphrase} />
@@ -143,7 +179,7 @@ const Signthings = (props) => {
                     <input type="file" ref={el => (refGimmeUrKey = el)} onChange={handleKeyUpload} style={{display: 'none'}} />
                     <ButtonGroup>
                         <Button onClick={(e) => {refGimmeUrKey.click()}}>gimme your key!</Button>
-                        <Button disabled={isDisabledSI}>sign it!</Button>
+                        <Button onClick={clickSignIt} disabled={isDisabledSI}>sign it!</Button>
                     </ButtonGroup>
                     
                 </Stack>
