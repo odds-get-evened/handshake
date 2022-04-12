@@ -19,6 +19,7 @@ const Signing = () => {
     const refThePasswd = useRef();
     const refSignMsg = useRef();
     const refSignMsgPasswd = useRef();
+    const refGimmeUrKey = useRef();
 
     const [clickGenerateDisabled, setClickGenerateDisabled] = useState(true);
     const [clickSignDisabled, setClickSignDisabled] = useState(true);
@@ -198,9 +199,9 @@ const Signing = () => {
                                                         <Form.Control ref={refSignMsgPasswd} type='password' onChange={(e) => setSignMsgData({...signMsgData, thepasswd: e.target.value.trim()})} />
                                                     </Form.Group>
                                                 </Form>
-                                                <input type="file" ref={el => (refGimmeUrKey = el)} onChange={changeGimmeUrKey} style={{ display: 'none' }} />
+                                                <input type="file" ref={refGimmeUrKey} multiple={false} onChange={changeGimmeUrKey} style={{ display: 'none' }} />
                                                 <ButtonGroup>
-                                                    <Button onClick={() => { refGimmeUrKey.click() }}>gimme your key!</Button>
+                                                    <Button onClick={() => { refGimmeUrKey.current.click() }}>gimme your key!</Button>
                                                     <Button onClick={clickSignIt} disabled={clickSignDisabled}>sign it!</Button>
                                                 </ButtonGroup>
                                             </Stack>
