@@ -5,12 +5,15 @@ import {
     FloatingLabel
 } from 'react-bootstrap';
 import Joi from 'joi';
-import { createMessage, decryptKey, generateKey, PrivateKey, readPrivateKey, sign } from 'openpgp';
+import { 
+    createMessage, decryptKey, generateKey, 
+    PrivateKey, PublicKey, readPrivateKey, sign
+} from 'openpgp';
 import JSZip from 'jszip';
-import crypto, { createPublicKey } from 'crypto';
+import {randomBytes} from 'crypto';
 import {saveAs} from 'file-saver'
 
-const Signing = (props) => {
+const Signing = () => {
     const refTheName = useRef();
     const refTheEmail = useRef();
     const refThePasswd = useRef();
@@ -41,12 +44,12 @@ const Signing = (props) => {
 
     const signMsgSchema = Joi.object({
         privateKey: Joi.object().instance(PrivateKey),
+        publicKey: Joi.object().instance(PublicKey),
         message: Joi.string().min(3).max(1024).required(),
         thepasswd: Joi.string().min(8).max(30).required()
     });
 
     useEffect(() => {
-        console.log(signMsgData);
         let val1 = signingSchema.validate(signingData);
         setClickGenerateDisabled(val1.error);
         let val2 = signMsgSchema.validate(signMsgData);
@@ -80,7 +83,7 @@ const Signing = (props) => {
             cleanUp();
 
             let zip = new JSZip();
-            let thetag = crypto.randomBytes(4).toString('hex');
+            let thetag = randomBytes(4).toString('hex');
             zip.file("handshake-sign-" + thetag + ".priv", kee.privateKey);
             zip.file("handshake-sign-" + thetag + ".pub", kee.publicKey);
 
@@ -99,24 +102,29 @@ const Signing = (props) => {
                 // we only need private key for signing
                 u.folder('').file(/.*\.priv$/)[0].async('string').then((block) => {
                     readPrivateKey({armoredKey: block}).then((pk) => {
-                        //if(!pk.isDecrypted()) {
-                            /** 
-                             * we need to decrypt with user's provided password
-                             * pop modal for password.
-                             */
-                        //}
                         decryptKey({
                             privateKey: pk,
                             passphrase: signMsgData.thepasswd
                         }).then((p) => {
-                            setSignMsgData({...signMsgData, privateKey: p});
-                            // create a pub key for signature verification
-                            createKey();
+                            setSignMsgData({...signMsgData, privateKey: p, publicKey: p.toPublic()});
                         });
                     });
                 });
             });
         });
+    };
+
+    const downloadSignature = (msg, sig) => {
+        let tag = randomBytes(4).toString('hex');
+        let zip = new JSZip();
+        zip.file("message-" + tag + ".txt", msg);
+        zip.file("signature-" + tag + ".sig", sig);
+
+        if(JSZip.support.uint8array) {
+            zip.generateAsync({type: 'blob'}).then((blob) => {
+                saveAs(blob, "handshake-signed-" + tag + ".zip");
+            });
+        }
     };
 
     const clickSignIt = (e) => {
@@ -126,8 +134,7 @@ const Signing = (props) => {
                 message: msg,
                 format: 'armored'
             }).then((sigmsg) => {
-                console.log(sigmsg);
-                downloadSignature(msg, sigmsg);
+                downloadSignature(msg.getText(), sigmsg);
                 cleanUp();
             });
         });
