@@ -23,6 +23,7 @@ const Signing = () => {
 
     const [clickGenerateDisabled, setClickGenerateDisabled] = useState(true);
     const [clickSignDisabled, setClickSignDisabled] = useState(true);
+    const [clickUrKeyDisabled, setClickUrKeyDisabled] = useState(true);
 
     const [signingData, setSigningData] = useState({
         thename: '',
@@ -55,6 +56,10 @@ const Signing = () => {
         setClickGenerateDisabled(val1.error);
         let val2 = signMsgSchema.validate(signMsgData);
         setClickSignDisabled(val2.error);
+
+        console.log(signMsgData);
+        setClickUrKeyDisabled((signMsgData.message == "" || signMsgData.thepasswd == ""));
+        
     }, [signingData, signMsgData]);
 
     const cleanUp = () => {
@@ -108,7 +113,7 @@ const Signing = () => {
                             passphrase: signMsgData.thepasswd
                         }).then((p) => {
                             setSignMsgData({...signMsgData, privateKey: p, publicKey: p.toPublic()});
-                        });
+                        }).catch((err) => console.log(err));
                     });
                 });
             });
@@ -201,7 +206,7 @@ const Signing = () => {
                                                 </Form>
                                                 <input type="file" ref={refGimmeUrKey} multiple={false} onChange={changeGimmeUrKey} style={{ display: 'none' }} />
                                                 <ButtonGroup>
-                                                    <Button onClick={() => { refGimmeUrKey.current.click() }}>gimme your key!</Button>
+                                                    <Button disabled={clickUrKeyDisabled} onClick={(e) => { refGimmeUrKey.current.click(); }}>give us key!</Button>
                                                     <Button onClick={clickSignIt} disabled={clickSignDisabled}>sign it!</Button>
                                                 </ButtonGroup>
                                             </Stack>
