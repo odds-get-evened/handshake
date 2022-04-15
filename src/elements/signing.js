@@ -1,3 +1,4 @@
+import 'regenerator-runtime';
 import React, {useState, useEffect, useRef} from 'react';
 import { 
     ButtonGroup, Form, Tabs, Tab, 
@@ -20,6 +21,7 @@ const Signing = () => {
     const refSignMsg = useRef();
     const refSignMsgPasswd = useRef();
     const refGimmeUrKey = useRef();
+    const refUrSignedMsg = useRef();
 
     const [clickGenerateDisabled, setClickGenerateDisabled] = useState(true);
     const [clickSignDisabled, setClickSignDisabled] = useState(true);
@@ -150,6 +152,11 @@ const Signing = () => {
         setSignMsgData({...signMsgData, message: e.target.value});
     };
 
+    const changeUrSignedMsg = (e) => {
+        // upload signed message packet
+        
+    };
+
     return (
         <Tabs defaultActiveKey="signing" transition={false} className="mb-3">
             <Tab eventKey="signing" title="Signing">
@@ -164,6 +171,9 @@ const Signing = () => {
                                         </Nav.Item>
                                         <Nav.Item>
                                             <Nav.Link eventKey="sign">sign</Nav.Link>
+                                        </Nav.Item>
+                                        <Nav.Item>
+                                            <Nav.Link eventKey="verify">verify</Nav.Link>
                                         </Nav.Item>
                                     </Nav>
                                 </Col>
@@ -209,6 +219,15 @@ const Signing = () => {
                                                     <Button disabled={clickUrKeyDisabled} onClick={(e) => { refGimmeUrKey.current.click(); }}>give us key!</Button>
                                                     <Button onClick={clickSignIt} disabled={clickSignDisabled}>sign it!</Button>
                                                 </ButtonGroup>
+                                            </Stack>
+                                        </Tab.Pane>
+                                        <Tab.Pane eventKey="verify">
+                                            <Stack gap={3}>
+                                                <Form>
+                                                    <Form.Group controlId='verify.'>
+                                                        <input type='file' ref={refUrSignedMsg} multiple={false} onChange={changeUrSignedMsg} />
+                                                    </Form.Group>
+                                                </Form>
                                             </Stack>
                                         </Tab.Pane>
                                     </Tab.Content>
