@@ -4,9 +4,9 @@ import {
     ButtonGroup, Button, Card
 } from 'react-bootstrap';
 import Joi from 'joi';
-import { 
+import {
     createMessage, decryptKey,
-    PrivateKey, PublicKey, readPrivateKey, sign
+    PrivateKey, PublicKey, readKey, readPrivateKey, sign
 } from 'openpgp';
 import JSZip from 'jszip';
 import {randomBytes} from 'crypto';
@@ -59,11 +59,12 @@ const Sign = (props) => {
         });
     };
 
-    const downloadSignature = (msg, sig) => {
+    const downloadSignature = (msg, sig, pubkey) => {
         let tag = randomBytes(4).toString('hex');
         let zip = new JSZip();
         zip.file("message-" + tag + ".txt", msg);
         zip.file("signature-" + tag + ".sig", sig);
+        zip.file("public-" + tag + ".key", pubkey.armor());
 
         if(JSZip.support.uint8array) {
             zip.generateAsync({type: 'blob'}).then((blob) => {
@@ -79,7 +80,7 @@ const Sign = (props) => {
                 message: msg,
                 format: 'armored'
             }).then((sigmsg) => {
-                downloadSignature(msg.getText(), sigmsg);
+                downloadSignature(msg.getText(), sigmsg, signMsgData.publicKey);
                 cleanUp();
             });
         });
@@ -97,9 +98,7 @@ const Sign = (props) => {
     useEffect(() => {
         let val = signMsgSchema.validate(signMsgData);
         setClickSignDisabled(val.error);
-        console.log(signMsgData);
         setClickUrKeyDisabled((signMsgData.message == "" || signMsgData.thepasswd == ""));
-        
     }, [signMsgData]);
 
     return (

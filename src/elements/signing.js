@@ -6,6 +6,7 @@ import {
 } from 'react-bootstrap';
 import Generate from './signing/generate';
 import Sign from './signing/sign';
+import Verify from './signing/verify';
 
 const Signing = () => {
     return (
@@ -37,7 +38,7 @@ const Signing = () => {
                                             <Sign />
                                         </Tab.Pane>
                                         <Tab.Pane eventKey="verify">
-                                            Nothing for now
+                                            <Verify />
                                         </Tab.Pane>
                                     </Tab.Content>
                                 </Col>
