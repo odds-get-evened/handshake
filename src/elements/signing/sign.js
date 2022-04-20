@@ -12,7 +12,7 @@ import JSZip from 'jszip';
 import {randomBytes} from 'crypto';
 import {saveAs} from 'file-saver';
 
-const Sign = (props) => {
+const Sign = () => {
     const refSignMsg = useRef();
     const refSignMsgPasswd = useRef();
     const refGimmeUrKey = useRef();

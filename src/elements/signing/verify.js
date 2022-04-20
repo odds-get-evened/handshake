@@ -27,7 +27,7 @@ const Verify = () => {
         // handle upload of message packet
         e.target.files.item(0).arrayBuffer().then((bin) => {
             JSZip.loadAsync(bin).then((u) => {
-                /*u.folder('').file(/.*\.txt$/)[0].async('string').then((msg) => {
+                u.folder('').file(/.*\.txt$/)[0].async('string').then((msg) => {
                     setDataVerify({...dataVerify, originalMessage: msg.trim()});
                 });
 
@@ -37,13 +37,6 @@ const Verify = () => {
 
                 u.folder('').file(/.*\.key$/)[0].async('string').then((pub) => {
                     setDataVerify({...dataVerify, publicKey: pub});
-                });*/
-                u.folder('').forEach((i, v) => {
-                    v.async('string').then((c) => {
-                        if(v.name.endsWith('.sig')) {
-                            
-                        }
-                    });
                 });
             });
         });
