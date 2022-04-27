@@ -1,5 +1,6 @@
 import Joi from 'joi';
 import JSZip from 'jszip';
+import { CleartextMessage, createCleartextMessage, readKey, readSignature, verify } from 'openpgp';
 import React, {useState, useRef, useEffect} from 'react';
 import { 
     ButtonGroup, FloatingLabel, Form, 
@@ -28,15 +29,15 @@ const Verify = () => {
         e.target.files.item(0).arrayBuffer().then((bin) => {
             JSZip.loadAsync(bin).then((u) => {
                 u.folder('').file(/.*\.txt$/)[0].async('string').then((msg) => {
-                    setDataVerify({...dataVerify, originalMessage: msg.trim()});
-                });
-
-                u.folder('').file(/.*\.sig$/)[0].async('string').then((sig) => {
-                    setDataVerify({...dataVerify, signature: sig});
-                });
-
-                u.folder('').file(/.*\.key$/)[0].async('string').then((pub) => {
-                    setDataVerify({...dataVerify, publicKey: pub});
+                    u.folder('').file(/.*\.sig$/)[0].async('string').then((sig) => {
+                        u.folder('').file(/.*\.key$/)[0].async('string').then((pub) => {
+                            setDataVerify({
+                                originalMessage: msg.trim(),
+                                signature: sig,
+                                publicKey: pub
+                            });
+                        });
+                    });
                 });
             });
         });
@@ -44,10 +45,22 @@ const Verify = () => {
 
     const clickVerify= (e) => {
         // handle verification
+        console.log(dataVerify);
+        // load up public key for verification
+        readKey({armoredKey: dataVerify.publicKey})
+            .then(pubKey => {
+                readSignature({armoredSignature: dataVerify.signature}).then(sig => {
+                    verify({
+                        message: createCleartextMessage({text: dataVerify.originalMessage}),
+                        verificationKeys: pubKey,
+                        signature: sig
+                    }).then(msg => console.log(msg));
+                });
+            })
+            .catch(err => console.error(err));
     };
 
     useEffect(() => {
-        console.log(dataVerify);
         let isValid = schemaVerify.validate(dataVerify);
         setDisabledVerify(isValid.error);
     }, [dataVerify]);
@@ -56,7 +69,7 @@ const Verify = () => {
         <Stack gap={3}>
             <Form.Group>
                 <FloatingLabel label='signed message'>
-                    <Form.Control disabled={true} ref={refUrMsg} as='textarea' style={{minHeight: '150px'}} />
+                    <Form.Control value={dataVerify.originalMessage} disabled={true} as='textarea' style={{minHeight: '150px'}} />
                 </FloatingLabel>
             </Form.Group>
             <input type="file" ref={refGimmeUrMsg} multiple={false} onChange={changeGimmeUrMsg} style={{ display: 'none' }} />
