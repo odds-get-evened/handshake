@@ -2,7 +2,7 @@ import 'regenerator-runtime';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {
-    Container, Row, Col, Badge
+    Container, Row, Col, Badge, Stack, Card, ListGroup, ListGroupItem
 } from 'react-bootstrap';
 import Signing from './elements/signing';
 
