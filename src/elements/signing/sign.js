@@ -57,6 +57,7 @@ const Sign = () => {
     };
 
     const cleanThisUp = () => {
+        setDisabledUpload(true);
         refMessage.current.value = "";
         refPasswd.current.value = "";
         setSigningData({});
