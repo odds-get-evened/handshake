@@ -1,12 +1,11 @@
 import React, {useState, useEffect, useRef} from 'react';
 import {
     Stack, Form, FloatingLabel,
-    ButtonGroup, Button, Card, Modal
+    ButtonGroup, Button, Modal
 } from 'react-bootstrap';
-import Joi from 'joi';
 import {
     createCleartextMessage, decryptKey,
-    PrivateKey, PublicKey, readKey, readPrivateKey, sign
+    readPrivateKey, sign
 } from 'openpgp';
 import JSZip from 'jszip';
 import {randomBytes} from 'crypto';
@@ -85,7 +84,7 @@ const Sign = () => {
     };
 
     useEffect(() => {
-        console.log(signingData);
+        //console.log(signingData);
         // make sure message is present
         setDisabledUpload(!(signingData.message));
         setDisabledSubmitPasswd(!(signingData.thepasswd));
