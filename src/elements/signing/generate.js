@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { ButtonGroup, Button, Form, Stack,  } from "react-bootstrap";
+import { ButtonGroup, Button, Form, Stack } from "react-bootstrap";
 import Joi from 'joi';
 import {generateKey} from 'openpgp';
 import JSZip from 'jszip';
@@ -67,27 +67,29 @@ const Generate = (props) => {
     }, [signingData]);
 
     return (
-        <Stack gap={3}>
-            <Form>
-                <Form.Group controlId='thename'>
-                    <Form.Label>name</Form.Label>
-                    <Form.Control ref={refTheName} onChange={(e) => setSigningData({ ...signingData, thename: e.target.value.trim() })} />
-                    <Form.Text>use your name or any nickname</Form.Text>
-                </Form.Group>
-                <Form.Group controlId='theemail'>
-                    <Form.Label>email</Form.Label>
-                    <Form.Control ref={refTheEmail} type='email' onChange={(e) => setSigningData({ ...signingData, theemail: e.target.value.trim() })} />
-                </Form.Group>
-                <Form.Group controlId='thepasswd'>
-                    <Form.Label>password</Form.Label>
-                    <Form.Control ref={refThePasswd} type='password' onChange={(e) => setSigningData({ ...signingData, thepasswd: e.target.value.trim() })} />
-                    <Form.Text>must be at least 8 characters, less than 31</Form.Text>
-                </Form.Group>
-            </Form>
-            <ButtonGroup>
-                <Button type='button' disabled={clickGenerateDisabled} variant='primary' onClick={clickGenerate}>generate</Button>
-            </ButtonGroup>
-        </Stack>
+        <>
+            <Stack gap={3}>
+                <Form>
+                    <Form.Group controlId='thename'>
+                        <Form.Label>name</Form.Label>
+                        <Form.Control ref={refTheName} onChange={(e) => setSigningData({ ...signingData, thename: e.target.value.trim() })} />
+                        <Form.Text>use your name or any nickname</Form.Text>
+                    </Form.Group>
+                    <Form.Group controlId='theemail'>
+                        <Form.Label>email</Form.Label>
+                        <Form.Control ref={refTheEmail} type='email' onChange={(e) => setSigningData({ ...signingData, theemail: e.target.value.trim() })} />
+                    </Form.Group>
+                    <Form.Group controlId='thepasswd'>
+                        <Form.Label>password</Form.Label>
+                        <Form.Control ref={refThePasswd} type='password' onChange={(e) => setSigningData({ ...signingData, thepasswd: e.target.value.trim() })} />
+                        <Form.Text>must be at least 8 characters, less than 31</Form.Text>
+                    </Form.Group>
+                </Form>
+                <ButtonGroup>
+                    <Button type='button' disabled={clickGenerateDisabled} variant='primary' onClick={clickGenerate}>generate</Button>
+                </ButtonGroup>
+            </Stack>
+        </>
     );
 };
 
