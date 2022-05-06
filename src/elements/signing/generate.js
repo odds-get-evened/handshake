@@ -21,7 +21,7 @@ const Generate = (props) => {
 
     const signingSchema = Joi.object({
         thename: Joi.string().min(3).max(30).required(),
-        theemail: Joi.string().email({tlds: {allowllow: false}}).required(),
+        theemail: Joi.string().email({tlds: {allow: false}}).required(),
         thepasswd: Joi.string().min(8).max(30).required()
     });
 
