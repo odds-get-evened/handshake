@@ -7,7 +7,9 @@ const Encrypt = () => {
     return (
         <>
             <Stack gap={3}>
-                <ButtonGroup></ButtonGroup>
+                <ButtonGroup>
+                    <Button>add signed message</Button>
+                </ButtonGroup>
             </Stack>
         </>
     );
