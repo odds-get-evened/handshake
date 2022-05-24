@@ -1,3 +1,4 @@
+import Joi from "joi";
 import JSZip from "jszip";
 import { readCleartextMessage } from "openpgp";
 import React, {useState, useRef, useEffect} from "react";
@@ -12,8 +13,26 @@ const Encrypt = () => {
     const refUploadMsg = useRef();
     const refOrigMsg = useRef();
 
-    const [disableUploadKey, setDisableUploadKey] = useState(true)
-    const [encData, setEncData] = useState({})
+    const [disableUploadKey, setDisableUploadKey] = useState(true);
+    const [disableEncryptIt, setDisableEncryptIt] = useState(true);
+
+    const [encData, setEncData] = useState({
+        originalMessage: '',
+        signature: '',
+        publicSigningKey: '',
+        publicEncKey: ''
+    });
+
+    const encSchema = Joi.object({
+        originalMessage: Joi.string().required(),
+        signature: Joi.string().required(),
+        publicSigningKey: Joi.string().required(),
+        publicEncKey: Joi.string().required()
+    });
+
+    const clickEncryptIt = (e) => {
+
+    };
 
     const changeUploadMsg = (e) => {
         e.target.files.item(0).arrayBuffer().then(bin => {
@@ -40,7 +59,10 @@ const Encrypt = () => {
             JSZip.loadAsync(bin).then(u => {
                 console.log(u.folder(''));
                 u.folder('').file(/.*\.pub$/)[0].async('string').then(pub => {
-                    console.log(pub);
+                    setEncData({
+                        ...encData,
+                        publicEncKey: pub
+                    });
                 }).catch(err3 => console.log(err3));
             }).catch(err2 => console.error(err2));
         }).catch(err1 => console.error(err1));
@@ -65,6 +87,7 @@ const Encrypt = () => {
                 <ButtonGroup>
                     <Button onClick={e => {refUploadMsg.current.click();}}>add signed message</Button>
                     <Button disabled={disableUploadKey} onClick={e => {refUploadKey.current.click();}}>add encrpytion key</Button>
+                    <Button disabled={disableEncryptIt} onClick={clickEncryptIt}>encrypt!</Button>
                 </ButtonGroup>
             </Stack>
         </>
