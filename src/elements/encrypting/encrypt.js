@@ -1,6 +1,6 @@
-import Joi from "joi";
+import Joi, { object } from "joi";
 import JSZip from "jszip";
-import { readCleartextMessage } from "openpgp";
+import { encrypt, readCleartextMessage } from "openpgp";
 import React, {useState, useRef, useEffect} from "react";
 import { 
     ButtonGroup, Stack, Button,
@@ -15,34 +15,27 @@ const Encrypt = () => {
 
     const [disableUploadKey, setDisableUploadKey] = useState(true);
     const [disableEncryptIt, setDisableEncryptIt] = useState(true);
+    const [originalMessageClear, setOriginalMessageClear] = useState("");
 
-    const [encData, setEncData] = useState({
-        originalMessage: '',
-        signature: '',
-        publicSigningKey: '',
-        publicEncKey: ''
-    });
+    const [encData, setEncData] = useState({});
 
-    const encSchema = Joi.object({
-        originalMessage: Joi.string().required(),
-        signature: Joi.string().required(),
-        publicSigningKey: Joi.string().required(),
-        publicEncKey: Joi.string().required()
-    });
-
-    const clickEncryptIt = (e) => {
-
-    };
+    const clickEncryptIt = (e) => {};
 
     const changeUploadMsg = (e) => {
         e.target.files.item(0).arrayBuffer().then(bin => {
             JSZip.loadAsync(bin).then(u => {
-                u.folder('').file(/.*\.sig$/)[0].async('string').then(sig => {
-                    u.folder('').file(/.*\.p7$/)[0].async('string').then(pubk => {
-                        readCleartextMessage({cleartextMessage: sig}).then(ctm => {
+                u.folder('').file(/.*\.sig$/)[0].async('arraybuffer').then(sig => {
+                    u.folder('').file(/.*\.p7$/)[0].async('arraybuffer').then(pubk => {
+                        
+                        /* let x = Buffer.from(pubk).toString('utf8');
+                        console.log(x);*/
+
+                        readCleartextMessage({
+                            cleartextMessage: Buffer.from(sig).toString('utf8')
+                        }).then(ctm => {
                             setEncData({
                                 ...encData,
-                                originalMessage: ctm.getText(),
+                                originalMessage: ctm,
                                 signature: sig,
                                 publicSigningKey: pubk
                             });
@@ -58,7 +51,7 @@ const Encrypt = () => {
         e.target.files.item(0).arrayBuffer().then(bin => {
             JSZip.loadAsync(bin).then(u => {
                 console.log(u.folder(''));
-                u.folder('').file(/.*\.pub$/)[0].async('string').then(pub => {
+                u.folder('').file(/.*\.pub$/)[0].async('arraybuffer').then(pub => {
                     setEncData({
                         ...encData,
                         publicEncKey: pub
@@ -70,6 +63,8 @@ const Encrypt = () => {
 
     useEffect(() => {
         console.log(encData);
+        if(typeof encData.originalMessage == 'object') 
+            setOriginalMessageClear(encData.originalMessage.getText());
     }, [encData]);
 
     return (
@@ -78,7 +73,7 @@ const Encrypt = () => {
                 <Form>
                     <Form.Group>
                         <FloatingLabel label='original message'>
-                            <Form.Control as='textarea' value={encData.originalMessage} ref={refOrigMsg} disabled={true} style={{minHeight: '100px'}} />
+                            <Form.Control as='textarea' value={originalMessageClear} ref={refOrigMsg} disabled={true} style={{minHeight: '100px'}} />
                         </FloatingLabel>
                     </Form.Group>
                 </Form>

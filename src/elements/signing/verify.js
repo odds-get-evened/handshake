@@ -65,9 +65,7 @@ const Verify = () => {
         setDataVerify({});
     };
 
-    useEffect(() => {
-        // console.log(dataVerify);
-    }, [dataVerify]);
+    useEffect(() => {}, [dataVerify]);
 
     return (
         <>
