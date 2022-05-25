@@ -9,6 +9,7 @@ import Sign from './signing/sign';
 import Verify from './signing/verify';
 import EGenerate from './encrypting/egenerate';
 import Encrypt from './encrypting/encrypt';
+import Decrypt from './encrypting/decrypt';
 
 const Signing = () => {
     return (
@@ -34,12 +35,21 @@ const Signing = () => {
                                 <Col sm={6}>
                                     <Tab.Content>
                                         <Tab.Pane eventKey="generate">
+                                            <Alert>
+                                                generate a key packet for signing messages.
+                                            </Alert>
                                             <Generate />
                                         </Tab.Pane>
                                         <Tab.Pane eventKey="sign">
+                                            <Alert>
+                                                sign a message! get the signature packet.
+                                            </Alert>
                                             <Sign />
                                         </Tab.Pane>
                                         <Tab.Pane eventKey="verify">
+                                            <Alert>
+                                                verify or check that a signature packet is authentic.
+                                            </Alert>
                                             <Verify />
                                         </Tab.Pane>
                                     </Tab.Content>
@@ -76,15 +86,30 @@ const Signing = () => {
                                         <Nav.Item>
                                             <Nav.Link eventKey="encrypt">encrypt</Nav.Link>
                                         </Nav.Item>
+                                        <Nav.Item>
+                                            <Nav.Link eventKey="decrypt">decrypt</Nav.Link>
+                                        </Nav.Item>
                                     </Nav>
                                 </Col>
                                 <Col sm={9}>
                                     <Tab.Content>
                                         <Tab.Pane eventKey="generate">
+                                            <Alert>
+                                                generate a key packet for encrypting signed messages.
+                                            </Alert>
                                             <EGenerate />
                                         </Tab.Pane>
                                         <Tab.Pane eventKey="encrypt">
+                                            <Alert>
+                                                encrypt a signed message.
+                                            </Alert>
                                             <Encrypt />
+                                        </Tab.Pane>
+                                        <Tab.Pane eventKey="decrypt">
+                                            <Alert>
+                                                decrpyt an encrypted signed message.
+                                            </Alert>
+                                            <Decrypt />
                                         </Tab.Pane>
                                     </Tab.Content>
                                 </Col>

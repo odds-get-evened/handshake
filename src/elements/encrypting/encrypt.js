@@ -1,6 +1,5 @@
-import Joi, { object } from "joi";
 import JSZip from "jszip";
-import { encrypt, readCleartextMessage } from "openpgp";
+import { createMessage, encrypt, readCleartextMessage, readKey } from "openpgp";
 import React, {useState, useRef, useEffect} from "react";
 import { 
     ButtonGroup, Stack, Button,
@@ -13,23 +12,31 @@ const Encrypt = () => {
     const refUploadMsg = useRef();
     const refOrigMsg = useRef();
 
-    const [disableUploadKey, setDisableUploadKey] = useState(true);
-    const [disableEncryptIt, setDisableEncryptIt] = useState(true);
+    const [disableUploadKey, setDisableUploadKey] = useState(false);
+    const [disableEncryptIt, setDisableEncryptIt] = useState(false);
     const [originalMessageClear, setOriginalMessageClear] = useState("");
 
     const [encData, setEncData] = useState({});
 
-    const clickEncryptIt = (e) => {};
+    const clickEncryptIt = (e) => {
+        createMessage({text: encData.originalMessage.getText()}).then(msg => {
+            readKey({armoredKey: Buffer.from(encData.publicEncKey).toString('utf8')}).then(pubk => {
+                encrypt({
+                    message: msg,
+                    encryptionKeys: pubk
+                }).then(strm => {
+                    console.log(strm);
+                    console.log(pubk.armor());
+                }).catch(err3 => console.log(err3));
+            }).catch(err2 => console.error(err2));
+        }).catch(err1 => console.error(err1));
+    };
 
     const changeUploadMsg = (e) => {
         e.target.files.item(0).arrayBuffer().then(bin => {
             JSZip.loadAsync(bin).then(u => {
                 u.folder('').file(/.*\.sig$/)[0].async('arraybuffer').then(sig => {
                     u.folder('').file(/.*\.p7$/)[0].async('arraybuffer').then(pubk => {
-                        
-                        /* let x = Buffer.from(pubk).toString('utf8');
-                        console.log(x);*/
-
                         readCleartextMessage({
                             cleartextMessage: Buffer.from(sig).toString('utf8')
                         }).then(ctm => {
@@ -39,7 +46,6 @@ const Encrypt = () => {
                                 signature: sig,
                                 publicSigningKey: pubk
                             });
-                            setDisableUploadKey(false);
                         }).catch(err5 => console.log(err5));
                     }).catch(err4 => console.error(err4));
                 }).catch(err3 => console.error(err3));
