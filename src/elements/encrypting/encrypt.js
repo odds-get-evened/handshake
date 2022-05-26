@@ -36,7 +36,13 @@ const Encrypt = () => {
 
                     zip.file("public-key-" + theTag + ".p7", pubk.armor());
                     zip.file("encrypted-" + theTag + ".asc", strm);
-                    cleanUp();
+
+                    if(JSZip.support.uint8array) {
+                        zip.generateAsync({type: 'blob'}).then(blob => {
+                            saveAs(blob, "handshake-secret-" + theTag + ".zip");
+                            cleanUp();       
+                        }).catch(err4 => console.error(err4));
+                    }
                 }).catch(err3 => console.log(err3));
             }).catch(err2 => console.error(err2));
         }).catch(err1 => {
