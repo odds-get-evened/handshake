@@ -35,21 +35,12 @@ const Signing = () => {
                                 <Col sm={6}>
                                     <Tab.Content>
                                         <Tab.Pane eventKey="generate">
-                                            <Alert>
-                                                generate a key packet for signing messages.
-                                            </Alert>
                                             <Generate />
                                         </Tab.Pane>
                                         <Tab.Pane eventKey="sign">
-                                            <Alert>
-                                                sign a message! get the signature packet.
-                                            </Alert>
                                             <Sign />
                                         </Tab.Pane>
                                         <Tab.Pane eventKey="verify">
-                                            <Alert>
-                                                verify or check that a signature packet is authentic.
-                                            </Alert>
                                             <Verify />
                                         </Tab.Pane>
                                     </Tab.Content>
@@ -94,21 +85,12 @@ const Signing = () => {
                                 <Col sm={9}>
                                     <Tab.Content>
                                         <Tab.Pane eventKey="generate">
-                                            <Alert>
-                                                generate a key packet for encrypting signed messages.
-                                            </Alert>
                                             <EGenerate />
                                         </Tab.Pane>
                                         <Tab.Pane eventKey="encrypt">
-                                            <Alert>
-                                                encrypt a signed message.
-                                            </Alert>
                                             <Encrypt />
                                         </Tab.Pane>
                                         <Tab.Pane eventKey="decrypt">
-                                            <Alert>
-                                                decrpyt an encrypted signed message.
-                                            </Alert>
                                             <Decrypt />
                                         </Tab.Pane>
                                     </Tab.Content>

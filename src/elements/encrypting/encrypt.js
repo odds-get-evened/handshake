@@ -3,33 +3,54 @@ import { createMessage, encrypt, readCleartextMessage, readKey } from "openpgp";
 import React, {useState, useRef, useEffect} from "react";
 import { 
     ButtonGroup, Stack, Button,
-    Form,
+    Form, Alert,
     FloatingLabel
 } from 'react-bootstrap';
+import {randomBytes} from 'crypto';
 
 const Encrypt = () => {
     const refUploadKey = useRef();
     const refUploadMsg = useRef();
     const refOrigMsg = useRef();
 
-    const [disableUploadKey, setDisableUploadKey] = useState(false);
-    const [disableEncryptIt, setDisableEncryptIt] = useState(false);
+    const [disableUploadKey, setDisableUploadKey] = useState(true);
+    const [disableEncryptIt, setDisableEncryptIt] = useState(true);
     const [originalMessageClear, setOriginalMessageClear] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
 
     const [encData, setEncData] = useState({});
 
     const clickEncryptIt = (e) => {
         createMessage({text: encData.originalMessage.getText()}).then(msg => {
-            readKey({armoredKey: Buffer.from(encData.publicEncKey).toString('utf8')}).then(pubk => {
+            readKey({
+                armoredKey: Buffer.from(encData.publicEncKey).toString('utf8')
+            }).then(pubk => {
                 encrypt({
                     message: msg,
                     encryptionKeys: pubk
                 }).then(strm => {
                     console.log(strm);
                     console.log(pubk.armor());
+                    let zip = new JSZip();
+                    let theTag = randomBytes(4).toString('hex');
+
+                    zip.file("public-key-" + theTag + ".p7", pubk.armor());
+                    zip.file("encrypted-" + theTag + ".asc", strm);
+                    cleanUp();
                 }).catch(err3 => console.log(err3));
             }).catch(err2 => console.error(err2));
-        }).catch(err1 => console.error(err1));
+        }).catch(err1 => {
+            console.error(err1);
+            setErrorMessage("failed to create a valid PGP message packet.");
+        });
+    };
+
+    const cleanUp = () => {
+        setErrorMessage("");
+        setDisableEncryptIt(true);
+        setDisableUploadKey(true);
+        setOriginalMessageClear("");
+        setEncData({});
     };
 
     const changeUploadMsg = (e) => {
@@ -46,29 +67,56 @@ const Encrypt = () => {
                                 signature: sig,
                                 publicSigningKey: pubk
                             });
-                        }).catch(err5 => console.log(err5));
-                    }).catch(err4 => console.error(err4));
-                }).catch(err3 => console.error(err3));
-            }).catch(err2 => console.log(err2));
-        }).catch(err1 => console.error(err1));
+                            setErrorMessage("");
+                            setDisableUploadKey(false);
+                        }).catch(err5 => {
+                            console.log(err5);
+                            setErrorMessage("unable to create clear-text message.");
+                        });
+                    }).catch(err4 => {
+                        console.error(err4);
+                        setErrorMessage("unable to load public key file.");
+                    });
+                }).catch(err3 => {
+                    console.error(err3);
+                    setErrorMessage("bad signature packet.");
+                });
+            }).catch(err2 => {
+                console.log(err2);
+                setErrorMessage("unable to load packet file");
+            });
+        }).catch(err1 => {
+            console.error(err1);
+            setErrorMessage("could not find and files.");
+        });
     };
 
     const changeUploadKey = (e) => {
         e.target.files.item(0).arrayBuffer().then(bin => {
             JSZip.loadAsync(bin).then(u => {
-                console.log(u.folder(''));
                 u.folder('').file(/.*\.pub$/)[0].async('arraybuffer').then(pub => {
                     setEncData({
                         ...encData,
                         publicEncKey: pub
                     });
-                }).catch(err3 => console.log(err3));
-            }).catch(err2 => console.error(err2));
-        }).catch(err1 => console.error(err1));
+                    setErrorMessage("");
+                    setDisableEncryptIt(false);
+                }).catch(err3 => {
+                    console.log(err3);
+                    setErrorMessage("failed to load public encryption key.");
+                });
+            }).catch(err2 => {
+                console.error(err2);
+                setErrorMessage("failed to load key.");
+            });
+        }).catch(err1 => {
+            console.error(err1);
+            setErrorMessage("failed to upload key.")
+        });
     };
 
     useEffect(() => {
-        console.log(encData);
+        // console.log(encData);
         if(typeof encData.originalMessage == 'object') 
             setOriginalMessageClear(encData.originalMessage.getText());
     }, [encData]);
@@ -76,6 +124,9 @@ const Encrypt = () => {
     return (
         <>
             <Stack gap={3}>
+                { (errorMessage !== "") &&
+                    <Alert variant="danger">{errorMessage}</Alert>
+                }
                 <Form>
                     <Form.Group>
                         <FloatingLabel label='original message'>
