@@ -12,6 +12,7 @@ const EGenerate = () => {
     const refKeyName = useRef();
     const refKeyEmail = useRef();
     const refKeyPasswd = useRef();
+    const refBtnGenerate = useRef();
 
     const [keyData, setKeyData] = useState({
         username: '',
@@ -42,6 +43,7 @@ const EGenerate = () => {
         refKeyEmail.current.value = '';
         refKeyName.current.value = '';
         refKeyPasswd.current.value = '';
+        
         setKeyData({
             email: '',
             thepasswd: '',
@@ -51,6 +53,13 @@ const EGenerate = () => {
 
     const clickGenerate = (e) => {
         e.preventDefault();
+
+        /**
+         * disable the genreate button, until key has 
+         * completed generating
+         */
+        // e.target.disabled = true;
+        refBtnGenerate.current.disabled = true;
 
         let userIDs = {'name': keyData.username, 'email': keyData.email};
         generateKey({
@@ -98,7 +107,7 @@ const EGenerate = () => {
                     </Form.Group>
                 </Form>
                 <ButtonGroup>
-                    <Button type="button" onClick={clickGenerate} disabled={disabledGenerate}>generate</Button>
+                    <Button type="button" ref={refBtnGenerate} onClick={clickGenerate} disabled={disabledGenerate}>generate</Button>
                 </ButtonGroup>
             </Stack>
         </>

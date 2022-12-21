@@ -1,26 +1,35 @@
 import 'regenerator-runtime';
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import {
-    Container, Row, Col, Badge, Stack, Card, ListGroup, ListGroupItem
+    Container, Row, Col, Badge
 } from 'react-bootstrap';
-import Signing from './elements/signing';
+import Signing from './elements/signing'; 
+import TestEncrypt from './elements/test-encrypt';
 
 const Main = (props) => {
     return (
-        <Container>
-            <Row>
-                <Col lg={12}>
-                    <h1>handshake <Badge bg='dark'>v0.0.1</Badge></h1>
-                </Col>
-            </Row>
-            <Row>
-                <Col lg={12}>
-                    <Signing />
-                </Col>
-            </Row>
-        </Container>
+        <BrowserRouter>
+            <Container>
+                <Row>
+                    <Col lg={12}>
+                        <h1>handshake <Badge bg='dark'>v0.0.1</Badge></h1>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col lg={12}>
+                        <Routes>
+                            <Route path="/" element={<Signing />} />
+                            <Route path="/test/encrypt" element={<TestEncrypt />} />
+                        </Routes>
+                    </Col>
+                </Row>
+            </Container>
+        </BrowserRouter>
     );
 };
 
-ReactDOM.render(<Main />, document.getElementById('app'));
+const appContainer = document.getElementById('app');
+const appRoot = createRoot(appContainer);
+appRoot.render(<Main />);

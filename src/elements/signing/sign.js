@@ -16,7 +16,7 @@ const Sign = () => {
     const refMessage = useRef();
     const refPasswd = useRef();
 
-    const [showPassModal, setShowPostModal] = useState(false);
+    const [showPassModal, setShowPassModal] = useState(false);
     
     const [disabledSubmitPasswd, setDisabledSubmitPasswd] = useState(true);
     const [disabledUpload, setDisabledUpload] = useState(true);
@@ -44,14 +44,14 @@ const Sign = () => {
                         zip.generateAsync({type: 'blob'}).then(blob => {
                             saveAs(blob, "handshake-signed-" + theTag + ".zip");
                             cleanThisUp();
-                            setShowPostModal(false);
+                            setShowPassModal(false);
                         }).catch(err3 => console.error(err3));
                     }
                 }).catch(err1 => console.error(err1));
             }).catch(err2 => console.error(err2));
         }).catch(err => {
             console.error(err.message);
-            setShowPostModal(false);
+            setShowPassModal(false);
             cleanThisUp();
         });
     };
@@ -77,7 +77,7 @@ const Sign = () => {
                 u.folder('').file(/.*\.priv$/)[0].async('string').then(privk => {
                     readPrivateKey({armoredKey: privk}).then(unprivk => {
                         setSigningData({...signingData, privateKey: unprivk});
-                        setShowPostModal(true);
+                        setShowPassModal(true);
                     }).catch(err3 => console.log(err3));
                 }).catch(err2 => console.log(err2));
             }).catch(err1 => console.log(err1));

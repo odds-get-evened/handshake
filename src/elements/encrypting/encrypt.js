@@ -3,8 +3,7 @@ import { createMessage, encrypt, readCleartextMessage, readKey } from "openpgp";
 import React, {useState, useRef, useEffect} from "react";
 import { 
     ButtonGroup, Stack, Button,
-    Form, Alert,
-    FloatingLabel
+    Form, FloatingLabel
 } from 'react-bootstrap';
 import {randomBytes} from 'crypto';
 
@@ -27,10 +26,13 @@ const Encrypt = () => {
             }).then(pubk => {
                 encrypt({
                     message: msg,
-                    encryptionKeys: pubk
+                    encryptionKeys: pubk,
+                    config: {
+                        versionString: 'handshake 0.0.1'
+                    }
                 }).then(strm => {
-                    console.log(strm);
-                    console.log(pubk.armor());
+                    // console.log(strm);
+                    // console.log(pubk.armor());
                     let zip = new JSZip();
                     let theTag = randomBytes(4).toString('hex');
 
@@ -122,17 +124,12 @@ const Encrypt = () => {
     };
 
     useEffect(() => {
-        // console.log(encData);
-        if(typeof encData.originalMessage == 'object') 
-            setOriginalMessageClear(encData.originalMessage.getText());
+        console.log(encData);
     }, [encData]);
 
     return (
         <>
             <Stack gap={3}>
-                { (errorMessage !== "") &&
-                    <Alert variant="danger">{errorMessage}</Alert>
-                }
                 <Form>
                     <Form.Group>
                         <FloatingLabel label='original message'>
