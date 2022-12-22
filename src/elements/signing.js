@@ -1,4 +1,3 @@
-import 'regenerator-runtime';
 import React from 'react';
 import { 
     Tabs, Tab, Alert,

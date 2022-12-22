@@ -2,9 +2,9 @@ import 'regenerator-runtime';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import {
-    Container, Row, Col, Badge
+    Container, Row, Col, Badge, Navbar, Nav
 } from 'react-bootstrap';
-import Signing from './elements/signing'; 
+import Signing from './elements/signing';
 
 const Main = (props) => {
     return (
