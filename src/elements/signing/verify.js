@@ -1,6 +1,5 @@
-import Joi from 'joi';
 import JSZip from 'jszip';
-import { CleartextMessage, createCleartextMessage, createMessage, Message, readCleartextMessage, readKey, readMessage, readSignature, verify } from 'openpgp';
+import { readCleartextMessage, readKey, verify } from 'openpgp';
 import React, {useState, useRef, useEffect} from 'react';
 import { 
     ButtonGroup, FloatingLabel, Form, 
@@ -14,14 +13,13 @@ const Verify = () => {
     const [dataVerify, setDataVerify] = useState({});
     const [disabledVerify, setDisabledVerify] = useState(true);
     const [verifyStatus, setVerifyStatus] = useState(false);
-    const [classVerifyStatus, setClassVerifyStatus] = useState("badge bg-danger");
 
     const changeUpload = (e) => {
-        e.target.files.item(0).arrayBuffer().then(bin => {
-            JSZip.loadAsync(bin).then(u => {
-                u.folder('').file(/.*\.sig$/)[0].async('string').then(sig => {
-                    u.folder('').file(/.*\.p7$/)[0].async('string').then(pubk => {
-                        readCleartextMessage({cleartextMessage: sig}).then(ctm => {
+        e.target.files.item(0).arrayBuffer().then((bin) => {
+            JSZip.loadAsync(bin).then((u) => {
+                u.folder('').file(/.*\.sig$/)[0].async('string').then((sig) => {
+                    u.folder('').file(/.*\.p7$/)[0].async('string').then((pubk) => {
+                        readCleartextMessage({cleartextMessage: sig}).then((ctm) => {
                             setDataVerify({
                                 ...dataVerify, 
                                 originalMessage: ctm.getText(),
@@ -29,34 +27,34 @@ const Verify = () => {
                                 publicKey: pubk
                             });
                             setDisabledVerify(false);
-                        }).catch(e5 => console.error("e5: " + e5));
-                    }).catch(e4 => console.error("e4: " + e4));
-                }).catch(e3 => console.error("e3: " + e3))
-            }).catch(e2 => {console.log("e2: " + e2)});
-        }).catch(e1 => console.error("e1: " + e1))
+                        }).catch((e) => console.error("e5: " + e));
+                    }).catch((e) => console.error("e4: " + e));
+                }).catch((e) => console.error("e3: " + e))
+            }).catch((e) => {console.log("e2: " + e)});
+        }).catch((e) => console.error("e1: " + e))
     };
 
     const clickVerify = (e) => {
         readCleartextMessage({
             cleartextMessage: dataVerify.signature
-        }).then(ctm => {
+        }).then((ctm) => {
             readKey({
                 armoredKey: dataVerify.publicKey
-            }).then(pubk => {
+            }).then((pubk) => {
                 verify({
                     message: ctm,
                     verificationKeys: pubk.toPublic()
-                }).then(veri => {
+                }).then((veri) => {
                     // it's good.
                     setVerifyStatus(true);
                     cleanThisUp();
-                }).catch(e3 => {
+                }).catch((e) => {
                     setVerifyStatus(false);
                     // handle unverified signature
                     cleanThisUp();
                 });
-            }).catch(e2 => console.error(e2));
-        }).catch(e1 => console.error(e1));
+            }).catch((e) => console.error(e));
+        }).catch((e) => console.error(e));
     };
 
     const cleanThisUp = () => {

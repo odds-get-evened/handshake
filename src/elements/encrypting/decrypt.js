@@ -1,14 +1,15 @@
 import JSZip from "jszip";
-import { createMessage, decrypt, decryptKey, readMessage, readPrivateKey } from "openpgp";
+import { decrypt, decryptKey, readMessage, readPrivateKey } from "openpgp";
 import React, {useState, useRef, useEffect} from "react";
 import {
-    ButtonGroup, Button, Stack, Modal, Form
+    ButtonGroup, Button, Stack, Modal, Form, FloatingLabel
 } from "react-bootstrap";
 
 const Decrypt = () => {
     const refUploadKey = useRef();
     const refUploadMsg = useRef();
     const refPasswd = useRef();
+    const refMessage = useRef();
 
     const [disableUploadMsg, setDisableUploadMsg] = useState(true);
     const [decData, setDecData] = useState({});
@@ -35,27 +36,24 @@ const Decrypt = () => {
     const changeUploadMsg = (e) => {
         e.target.files.item(0).arrayBuffer().then(bin => {
             JSZip.loadAsync(bin).then(u => {
-                u.folder('').file(/.*\.asc$/)[0].async('arraybuffer').then(msg => {
-                    createMessage({
-                        binary: new Uint8Array(msg)
+                u.folder('').file(/.*\.asc$/)[0].async('string').then((msg) => {
+                    readMessage({
+                        armoredMessage: msg
                     }).then((encMsg) => {
-                        console.log(typeof decData.privatekey);
-                        /*decrypt({
+                        decrypt({
                             message: encMsg,
-                            decryptionKeys: decData.privateKey
-                        }).then((decMsg) => {
-                            console.log(decMsg);
-                        }).catch((e) => console.log(e));*/
+                            decryptionKeys: decData.privatekey
+                        }).then((dec) => {
+                            setDecData({...decData, origmsg: dec.data});
+                        }).catch((e) => console.log(e));
                     }).catch((e) => console.log(e));
-                    setDecData({...decData, msg});
-
                 }).catch((e) => console.log(e));
             }).catch((e) => console.log(e));
         }).catch((e) => console.log(e));
     };
 
     const changeUploadKey = (e) => {
-        e.target.files.item(0).arrayBuffer().then(bin => {
+        e.target.files.item(0).arrayBuffer().then((bin) => {
             JSZip.loadAsync(bin).then(u => {                
                 u.folder('').file(/.*\.pem$/)[0].async('string').then(armoredPriv => {
                     readPrivateKey({
@@ -63,7 +61,7 @@ const Decrypt = () => {
                     }).then((unPriv) => {
                         setDecData({...decData, privatekey: unPriv});
                         setShowPassModal(true);
-                    }).catch((e) => {});
+                    }).catch((e) => console.log(e));
                 }).catch((e) => console.log(e));
             }).catch((e) => console.log(e));
         }).catch((e) => console.log(e));
@@ -93,6 +91,11 @@ const Decrypt = () => {
                 </Modal.Footer>
             </Modal>
             <Stack gap={3}>
+                <Form.Group>
+                    <FloatingLabel label="message">
+                        <Form.Control ref={refMessage} value={decData.origmsg} disabled={true} as='textarea' style={{minHeight: '150px'}} />
+                    </FloatingLabel>
+                </Form.Group>
                 <input type='file' ref={refUploadKey} multiple={false} onChange={changeUploadKey} style={{display: 'none'}} />
                 <input type='file' ref={refUploadMsg} multiple={false} onChange={changeUploadMsg} style={{display: 'none'}} />
                 <ButtonGroup>

@@ -1,10 +1,12 @@
-import Joi, { ref } from "joi";
+import Joi from "joi";
 import JSZip from "jszip";
 import { generateKey } from "openpgp";
 import React, {useState, useRef, useEffect} from "react";
 import {
     Stack, Button, ButtonGroup, 
-    Form
+    Form,
+    Alert,
+    Spinner
 } from 'react-bootstrap';
 import {randomBytes} from 'crypto';
 
@@ -13,6 +15,8 @@ const EGenerate = () => {
     const refKeyEmail = useRef();
     const refKeyPasswd = useRef();
     const refBtnGenerate = useRef();
+
+    const [displayLoading, setDisplayLoading] = useState(false);
 
     const [keyData, setKeyData] = useState({
         username: '',
@@ -43,6 +47,8 @@ const EGenerate = () => {
         refKeyEmail.current.value = '';
         refKeyName.current.value = '';
         refKeyPasswd.current.value = '';
+
+        setDisplayLoading(false);
         
         setKeyData({
             email: '',
@@ -60,6 +66,7 @@ const EGenerate = () => {
          */
         // e.target.disabled = true;
         refBtnGenerate.current.disabled = true;
+        setDisplayLoading(true);
 
         let userIDs = {'name': keyData.username, 'email': keyData.email};
         generateKey({
@@ -67,24 +74,24 @@ const EGenerate = () => {
             type: 'rsa',
             passphrase: keyData.thepasswd,
             format: 'armored'
-        }).then(keyPair => {
+        }).then((keyPair) => {
             let zip = new JSZip();
             let theTag = randomBytes(4).toString('hex');
             zip.file("handshake-enc-" + theTag + ".pem", keyPair.privateKey);
             zip.file("handshake-enc-" + theTag + ".pub", keyPair.publicKey);
 
             if(JSZip.support.uint8array) {
-                zip.generateAsync({type: 'blob'}).then(blob => {
+                zip.generateAsync({type: 'blob'}).then((blob) => {
                     saveAs(blob, "handshake-enc-" + theTag + ".zip");
                 });
             }
-
+            
             cleanUp();
-        }).catch(err1 => console.error(err1));
+        }).catch((e) => console.error(e));
     };
 
     useEffect(() => {
-        console.log(keyData);
+        // console.log(keyData);
         let validateKey = keySchema.validate(keyData);
         setDisabledGenerate(validateKey.error);
     }, [keyData]);
@@ -92,6 +99,10 @@ const EGenerate = () => {
     return (
         <>
             <Stack gap={3}>
+                <Alert variant="info" show={displayLoading}>
+                    <Spinner animation="border" size="sm" />
+                    <Alert.Heading>generating...</Alert.Heading>
+                </Alert>
                 <Form>
                     <Form.Group>
                         <Form.Label>name</Form.Label>

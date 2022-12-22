@@ -29,11 +29,11 @@ const Sign = () => {
         }).then(privk => {
             createCleartextMessage({
                 text: signingData.message
-            }).then(ctm => {
+            }).then((ctm) => {
                 sign({
                     message: ctm,
                     signingKeys: privk
-                }).then(signedMsg => {
+                }).then((signedMsg) => {
                     let zip = JSZip();
                     let theTag = randomBytes(4).toString('hex');
 
@@ -41,16 +41,16 @@ const Sign = () => {
                     zip.file("public-key-" + theTag + ".p7", privk.toPublic().armor());
 
                     if(JSZip.support.uint8array) {
-                        zip.generateAsync({type: 'blob'}).then(blob => {
+                        zip.generateAsync({type: 'blob'}).then((blob) => {
                             saveAs(blob, "handshake-signed-" + theTag + ".zip");
                             cleanThisUp();
                             setShowPassModal(false);
-                        }).catch(err3 => console.error(err3));
+                        }).catch((e) => console.error(e));
                     }
-                }).catch(err1 => console.error(err1));
-            }).catch(err2 => console.error(err2));
-        }).catch(err => {
-            console.error(err.message);
+                }).catch((e) => console.error(e));
+            }).catch((e) => console.error(e));
+        }).catch((e) => {
+            console.error(e);
             setShowPassModal(false);
             cleanThisUp();
         });
@@ -72,16 +72,16 @@ const Sign = () => {
     };
 
     const changeUploadFile = (e) => {
-        e.target.files.item(0).arrayBuffer().then(bin => {
-            JSZip.loadAsync(bin).then(u => {
-                u.folder('').file(/.*\.priv$/)[0].async('string').then(privk => {
-                    readPrivateKey({armoredKey: privk}).then(unprivk => {
+        e.target.files.item(0).arrayBuffer().then((bin) => {
+            JSZip.loadAsync(bin).then((u) => {
+                u.folder('').file(/.*\.priv$/)[0].async('string').then((privk) => {
+                    readPrivateKey({armoredKey: privk}).then((unprivk) => {
                         setSigningData({...signingData, privateKey: unprivk});
                         setShowPassModal(true);
-                    }).catch(err3 => console.log(err3));
-                }).catch(err2 => console.log(err2));
-            }).catch(err1 => console.log(err1));
-        }).catch(err => console.log(err));
+                    }).catch((e) => console.log(e));
+                }).catch((e) => console.log(e));
+            }).catch((e) => console.log(e));
+        }).catch((e) => console.log(e));
     };
 
     useEffect(() => {
