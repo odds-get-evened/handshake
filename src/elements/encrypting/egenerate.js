@@ -103,7 +103,7 @@ const EGenerate = () => {
                     <Spinner animation="border" size="sm" />
                     <Alert.Heading>generating...</Alert.Heading>
                 </Alert>
-                <Form>
+                <Form onSubmit={(e) => e.preventDefault()}>
                     <Form.Group>
                         <Form.Label>name</Form.Label>
                         <Form.Control type="text" onChange={changeKeyName} ref={refKeyName} />

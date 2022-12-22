@@ -22,7 +22,9 @@ const Sign = () => {
     const [disabledUpload, setDisabledUpload] = useState(true);
     const [signingData, setSigningData] = useState({});
 
-    const clickSubmitPasswd = (e) => {
+    const submitPasswd = (e) => {
+        e.preventDefault();
+
         decryptKey({
             privateKey: signingData.privateKey,
             passphrase: signingData.thepasswd.trim()
@@ -98,16 +100,13 @@ const Sign = () => {
                     <Modal.Title>private key authentication</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <Form>
+                    <Form onSubmit={submitPasswd}>
                         <Form.Group>
                             <Form.Label>password</Form.Label>
                             <Form.Control ref={refPasswd} type='password' onChange={changePasswd} />
                         </Form.Group>
                     </Form>
                 </Modal.Body>
-                <Modal.Footer>
-                    <Button type='button' disabled={disabledSubmitPasswd} onClick={clickSubmitPasswd}>ok</Button>
-                </Modal.Footer>
             </Modal>
             <Stack gap={3}>
                 <Form>
@@ -119,7 +118,7 @@ const Sign = () => {
                 </Form>
                 <input type='file' ref={refUpload} multiple={false} onChange={changeUploadFile} style={{display: 'none'}} />
                 <ButtonGroup>
-                    <Button onClick={e => {refUpload.current.click();}} disabled={disabledUpload} type='button'>upload keys...</Button>
+                    <Button onClick={e => {refUpload.current.click();}} disabled={disabledUpload} type='button'>upload signing key</Button>
                 </ButtonGroup>
             </Stack>
         </>

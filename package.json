@@ -1,11 +1,10 @@
 {
   "name": "handshake",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "source": "src/index.js",
   "scripts": {
     "start": "parcel src/index.html --port 8001",
-    "build_bak": "parcel build src/index.js src/style.scss",
     "build": "parcel build src/index.js src/style.scss"
   },
   "author": "",

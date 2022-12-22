@@ -20,7 +20,9 @@ const Decrypt = () => {
         setDecData({...decData, thepasswd: e.target.value.trim()});
     };
 
-    const clickSubmitPasswd = (e) => {
+    const submitPasswd = (e) => {
+        e.preventDefault();
+
         decryptKey({
             privateKey: decData.privatekey,
             passphrase: decData.thepasswd
@@ -79,16 +81,13 @@ const Decrypt = () => {
                     <Modal.Title>encryption key authentication</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <Form>
+                    <Form onSubmit={submitPasswd}>
                         <Form.Group>
                             <Form.Label>password</Form.Label>
                             <Form.Control ref={refPasswd} type='password' onChange={changePasswd} />
                         </Form.Group>
                     </Form>
                 </Modal.Body>
-                <Modal.Footer>
-                    <Button type='button' disabled={disabledSubmitPasswd} onClick={clickSubmitPasswd}>ok</Button>
-                </Modal.Footer>
             </Modal>
             <Stack gap={3}>
                 <Form.Group>

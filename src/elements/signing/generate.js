@@ -69,7 +69,7 @@ const Generate = (props) => {
     return (
         <>
             <Stack gap={3}>
-                <Form>
+                <Form onSubmit={(e) => e.preventDefault()}>
                     <Form.Group controlId='thename'>
                         <Form.Label>name</Form.Label>
                         <Form.Control ref={refTheName} onChange={(e) => setSigningData({ ...signingData, thename: e.target.value.trim() })} />
