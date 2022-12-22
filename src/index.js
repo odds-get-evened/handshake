@@ -6,7 +6,6 @@ import {
     Container, Row, Col, Badge
 } from 'react-bootstrap';
 import Signing from './elements/signing'; 
-import TestEncrypt from './elements/test-encrypt';
 
 const Main = (props) => {
     return (
@@ -21,7 +20,6 @@ const Main = (props) => {
                     <Col lg={12}>
                         <Routes>
                             <Route path="/" element={<Signing />} />
-                            <Route path="/test/encrypt" element={<TestEncrypt />} />
                         </Routes>
                     </Col>
                 </Row>

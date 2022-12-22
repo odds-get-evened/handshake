@@ -1,5 +1,5 @@
 import JSZip from "jszip";
-import { readMessage } from "openpgp";
+import { createMessage, decrypt, decryptKey, readMessage, readPrivateKey } from "openpgp";
 import React, {useState, useRef, useEffect} from "react";
 import {
     ButtonGroup, Button, Stack, Modal, Form
@@ -19,35 +19,54 @@ const Decrypt = () => {
         setDecData({...decData, thepasswd: e.target.value.trim()});
     };
 
-    const clickSubmitPasswd = (e) => {};
+    const clickSubmitPasswd = (e) => {
+        decryptKey({
+            privateKey: decData.privatekey,
+            passphrase: decData.thepasswd
+        }).then((privk) => {
+            setDecData({...decData, privatekey: privk, thepasswd: ""});
+            setDisableUploadMsg(false);
+            setShowPassModal(false);
+        }).catch((e) => {
+            console.log(e);
+        });
+    };
 
     const changeUploadMsg = (e) => {
         e.target.files.item(0).arrayBuffer().then(bin => {
             JSZip.loadAsync(bin).then(u => {
-                /*u.folder('').file(/.*\.asc$/)[0].async('arraybuffer').then(msg => {
-                    
-                }).catch(err3 => console.log(err3))*/
-                u.folder('').file(/.*\.asc$/)[0].async('string').then((msg) => {
-                    console.log(msg);
-                });
-            }).catch(err2 => console.log(err2));
-        }).catch(err1 => console.log(err1));
+                u.folder('').file(/.*\.asc$/)[0].async('arraybuffer').then(msg => {
+                    createMessage({
+                        binary: new Uint8Array(msg)
+                    }).then((encMsg) => {
+                        console.log(typeof decData.privatekey);
+                        /*decrypt({
+                            message: encMsg,
+                            decryptionKeys: decData.privateKey
+                        }).then((decMsg) => {
+                            console.log(decMsg);
+                        }).catch((e) => console.log(e));*/
+                    }).catch((e) => console.log(e));
+                    setDecData({...decData, msg});
+
+                }).catch((e) => console.log(e));
+            }).catch((e) => console.log(e));
+        }).catch((e) => console.log(e));
     };
 
     const changeUploadKey = (e) => {
         e.target.files.item(0).arrayBuffer().then(bin => {
-            JSZip.loadAsync(bin).then(u => {
-                setShowPassModal(true);
-                /*u.folder('').file(/.*\.pem$/)[0].async('arraybuffer').then(priv => {
-                    setDecData({
-                        ...decData,
-                        privateEncKey: priv
-                    });
-                    
-                    //setDisableUploadMsg(false);
-                }).catch(err3 => console.log(err3));*/
-            }).catch(err2 => console.log(err2));
-        }).catch(err1 => console.log(err1));
+            JSZip.loadAsync(bin).then(u => {                
+                u.folder('').file(/.*\.pem$/)[0].async('string').then(armoredPriv => {
+                    readPrivateKey({
+                        armoredKey: armoredPriv
+                    }).then((unPriv) => {
+                        setDecData({...decData, privatekey: unPriv});
+                        setShowPassModal(true);
+                    }).catch((e) => {});
+                }).catch((e) => console.log(e));
+            }).catch((e) => console.log(e));
+        }).catch((e) => console.log(e));
     };
 
     useEffect(() => {
