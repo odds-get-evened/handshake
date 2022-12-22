@@ -91,7 +91,6 @@ const EGenerate = () => {
     };
 
     useEffect(() => {
-        // console.log(keyData);
         let validateKey = keySchema.validate(keyData);
         setDisabledGenerate(validateKey.error);
     }, [keyData]);

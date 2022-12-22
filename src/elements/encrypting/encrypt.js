@@ -117,9 +117,7 @@ const Encrypt = () => {
         });
     };
 
-    useEffect(() => {
-        // console.log(encData);
-    }, [encData]);
+    useEffect(() => {});
 
     return (
         <>

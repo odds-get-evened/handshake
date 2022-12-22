@@ -87,7 +87,6 @@ const Sign = () => {
     };
 
     useEffect(() => {
-        //console.log(signingData);
         // make sure message is present
         setDisabledUpload(!(signingData.message));
         setDisabledSubmitPasswd(!(signingData.thepasswd));

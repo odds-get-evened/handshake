@@ -70,7 +70,6 @@ const Decrypt = () => {
     };
 
     useEffect(() => {
-        console.log(decData);
         setDisabledSubmitPasswd(!(decData.thepasswd));
     }, [decData]);
 
