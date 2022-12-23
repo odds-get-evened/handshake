@@ -3,9 +3,10 @@ import { createMessage, encrypt, readCleartextMessage, readKey } from "openpgp";
 import React, {useState, useRef, useEffect} from "react";
 import { 
     ButtonGroup, Stack, Button,
-    Form, FloatingLabel
+    Form, FloatingLabel, Alert
 } from 'react-bootstrap';
 import {randomBytes} from 'crypto';
+import { getFileTag } from "../../handshake-tools/file-utils";
 
 const Encrypt = () => {
     const refUploadKey = useRef();
@@ -14,6 +15,7 @@ const Encrypt = () => {
 
     const [disableUploadKey, setDisableUploadKey] = useState(true);
     const [disableEncryptIt, setDisableEncryptIt] = useState(true);
+    const [displayErrorMsg, setDisplayErrorMsg] = useState(false);
 
     const [errorMessage, setErrorMessage] = useState("");
 
@@ -34,21 +36,18 @@ const Encrypt = () => {
                     let zip = new JSZip();
                     let theTag = randomBytes(4).toString('hex');
 
-                    zip.file("public-key-" + theTag + ".p7", pubk.armor());
-                    zip.file("encrypted-" + theTag + ".asc", strm);
+                    zip.file("public-key-" + encData.thetag + ".p7", pubk.armor());
+                    zip.file("encrypted-" + encData.thetag + ".asc", strm);
 
                     if(JSZip.support.uint8array) {
                         zip.generateAsync({type: 'blob'}).then((blob) => {
-                            saveAs(blob, "handshake-secret-" + theTag + ".zip");
+                            saveAs(blob, "handshake-secret-" + encData.thetag + ".zip");
                             cleanUp();       
-                        }).catch((e) => console.error(e));
+                        }).catch((e) => setErrorMessage("failed to create secret packet. [" + e.message + "]"));
                     }
-                }).catch((e) => console.log(e));
-            }).catch((e) => console.error(e));
-        }).catch((e) => {
-            console.error(e);
-            setErrorMessage("failed to create a valid PGP message packet.");
-        });
+                }).catch((e) => setErrorMessage("encryption failed. [" + e.message + "]"));
+            }).catch((e) => setErrorMessage("failed to read key. [" + e.message + "]"));
+        }).catch((e) => setErrorMessage("failed to create a valid PGP message packet."));
     };
 
     const cleanUp = () => {
@@ -88,7 +87,7 @@ const Encrypt = () => {
                 });
             }).catch((e) => {
                 console.log(e);
-                setErrorMessage("unable to load packet file");
+                setErrorMessage("invalid signed message packet. [" + e.message + "]");
             });
         }).catch((e) => {
             console.error(e);
@@ -97,31 +96,37 @@ const Encrypt = () => {
     };
 
     const changeUploadKey = (e) => {
+        let zipFilename = e.target.files.item(0).name;
+
         e.target.files.item(0).arrayBuffer().then((bin) => {
             JSZip.loadAsync(bin).then((u) => {
                 u.folder('').file(/.*\.pub$/)[0].async('arraybuffer').then((pub) => {
-                    setEncData({...encData, publicEncKey: pub});
+                    setEncData({
+                        ...encData, 
+                        publicEncKey: pub,
+                        thetag: getFileTag(zipFilename)
+                    });
                     setErrorMessage("");
                     setDisableEncryptIt(false);
                 }).catch((e) => {
-                    console.log(e);
                     setErrorMessage("failed to load public encryption key.");
                 });
             }).catch((e) => {
-                console.error(e);
-                setErrorMessage("failed to load key.");
+                setErrorMessage("invalid encryption key packet. [" + e.message + "]");
             });
         }).catch((e) => {
-            console.error(e);
             setErrorMessage("failed to upload key.")
         });
     };
 
-    useEffect(() => {});
+    useEffect(() => {
+        setDisplayErrorMsg(!(errorMessage === ""));
+    }, [errorMessage]);
 
     return (
         <>
             <Stack gap={3}>
+                <Alert variant='danger' show={displayErrorMsg}>{errorMessage}</Alert>
                 <Form>
                     <Form.Group>
                         <FloatingLabel label='original message'>

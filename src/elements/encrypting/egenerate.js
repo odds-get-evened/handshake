@@ -60,6 +60,8 @@ const EGenerate = () => {
     const clickGenerate = (e) => {
         e.preventDefault();
 
+        setKeyData({...keyData, thetag: randomBytes(4).toString('hex')});
+
         /**
          * disable the genreate button, until key has 
          * completed generating
@@ -76,13 +78,12 @@ const EGenerate = () => {
             format: 'armored'
         }).then((keyPair) => {
             let zip = new JSZip();
-            let theTag = randomBytes(4).toString('hex');
-            zip.file("handshake-enc-" + theTag + ".pem", keyPair.privateKey);
-            zip.file("handshake-enc-" + theTag + ".pub", keyPair.publicKey);
+            zip.file("handshake-enc-" + keyData.thetag + ".pem", keyPair.privateKey);
+            zip.file("handshake-enc-" + keyData.thetag + ".pub", keyPair.publicKey);
 
             if(JSZip.support.uint8array) {
                 zip.generateAsync({type: 'blob'}).then((blob) => {
-                    saveAs(blob, "handshake-enc-" + theTag + ".zip");
+                    saveAs(blob, "handshake-enc-" + keyData.thetag + ".zip");
                 });
             }
             
