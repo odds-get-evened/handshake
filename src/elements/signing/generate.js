@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { ButtonGroup, Button, Form, Stack } from "react-bootstrap";
+import { ButtonGroup, Button, Form, Stack, Alert } from "react-bootstrap";
 import Joi from 'joi';
 import {generateKey} from 'openpgp';
 import JSZip from 'jszip';
@@ -34,6 +34,9 @@ const Generate = (props) => {
 
     const clickGenerate = (e) => {
         e.preventDefault();
+
+        setSigningData({...signingData, thetag: randomBytes(4).toString('hex')});
+
         generateKey({
             type: 'ecc',
             curve: 'curve25519',
@@ -49,13 +52,12 @@ const Generate = (props) => {
             cleanUp();
 
             let zip = new JSZip();
-            let thetag = randomBytes(4).toString('hex');
-            zip.file("handshake-sign-" + thetag + ".priv", kee.privateKey);
-            zip.file("handshake-sign-" + thetag + ".pub", kee.publicKey);
+            zip.file("handshake-sign-" + signingData.thetag + ".priv", kee.privateKey);
+            zip.file("handshake-sign-" + signingData.thetag + ".pub", kee.publicKey);
 
             if(JSZip.support.uint8array) {
                 zip.generateAsync({type: 'blob'}).then((blob) => {
-                    saveAs(blob, "handshake-sign-" + thetag + ".zip");
+                    saveAs(blob, "handshake-sign-" + signingData.thetag + ".zip");
                 });
             }
         });
