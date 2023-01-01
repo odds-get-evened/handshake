@@ -9,6 +9,7 @@ import Verify from './signing/verify';
 import EGenerate from './encrypting/egenerate';
 import Encrypt from './encrypting/encrypt';
 import Decrypt from './encrypting/decrypt';
+import PubKey from './encrypting/pubkey';
 
 const Signing = () => {
     return (
@@ -83,6 +84,9 @@ const Signing = () => {
                                         <Nav.Item>
                                             <Nav.Link eventKey="decrypt">decrypt</Nav.Link>
                                         </Nav.Item>
+                                        <Nav.Item>
+                                            <Nav.Link eventKey="pubkey">public key</Nav.Link>
+                                        </Nav.Item>
                                     </Nav>
                                 </Col>
                                 <Col sm={6}>
@@ -95,6 +99,9 @@ const Signing = () => {
                                         </Tab.Pane>
                                         <Tab.Pane eventKey="decrypt">
                                             <Decrypt />
+                                        </Tab.Pane>
+                                        <Tab.Pane eventKey="pubkey">
+                                            <PubKey />
                                         </Tab.Pane>
                                     </Tab.Content>
                                 </Col>
