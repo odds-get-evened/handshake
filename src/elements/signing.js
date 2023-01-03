@@ -9,6 +9,7 @@ import Verify from './signing/verify';
 import EGenerate from './encrypting/egenerate';
 import Encrypt from './encrypting/encrypt';
 import Decrypt from './encrypting/decrypt';
+import PubKey from './encrypting/pubkey';
 
 const Signing = () => {
     return (
@@ -78,6 +79,9 @@ const Signing = () => {
                                             <Nav.Link eventKey="generate">generate</Nav.Link>
                                         </Nav.Item>
                                         <Nav.Item>
+                                            <Nav.Link eventKey="pubkey">public key</Nav.Link>
+                                        </Nav.Item>
+                                        <Nav.Item>
                                             <Nav.Link eventKey="encrypt">encrypt</Nav.Link>
                                         </Nav.Item>
                                         <Nav.Item>
@@ -89,6 +93,9 @@ const Signing = () => {
                                     <Tab.Content>
                                         <Tab.Pane eventKey="generate">
                                             <EGenerate />
+                                        </Tab.Pane>
+                                        <Tab.Pane eventKey="pubkey">
+                                            <PubKey />
                                         </Tab.Pane>
                                         <Tab.Pane eventKey="encrypt">
                                             <Encrypt />
@@ -107,7 +114,8 @@ const Signing = () => {
                                         <span className='small fw-semibold'>example: handshake-enc-&lt;tag id&gt;.zip</span>
                                     </Alert>
                                     <Alert variant='warning'>
-                                        <span className='fs-3 text'>2.</span> use your signed packet, to encrypt the clear text message from the signing process.
+                                        <span className='fs-3 text'>2.</span> 
+                                        use your signed packet, to encrypt the clear text message from the signing process.
                                         <br />
                                         <span className='small fw-semibold'>example: handshake-secret-&lt;enc id tag&gt;.zip</span>
                                     </Alert>

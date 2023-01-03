@@ -120,8 +120,9 @@ const Encrypt = () => {
     };
 
     useEffect(() => {
+        console.log(encData);
         setDisplayErrorMsg(!(errorMessage === ""));
-    }, [errorMessage]);
+    }, [errorMessage, encData]);
 
     return (
         <>
@@ -138,7 +139,7 @@ const Encrypt = () => {
                 <input type='file' ref={refUploadKey} multiple={false} onChange={changeUploadKey} style={{display: 'none'}} />
                 <ButtonGroup>
                     <Button onClick={e => {refUploadMsg.current.click();}}>add signed message</Button>
-                    <Button disabled={disableUploadKey} onClick={e => {refUploadKey.current.click();}}>add encrpytion key</Button>
+                    <Button disabled={disableUploadKey} onClick={e => {refUploadKey.current.click();}}>add public key</Button>
                     <Button disabled={disableEncryptIt} onClick={clickEncryptIt}>encrypt!</Button>
                 </ButtonGroup>
             </Stack>

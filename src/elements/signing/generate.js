@@ -13,11 +13,7 @@ const Generate = (props) => {
 
     const [clickGenerateDisabled, setClickGenerateDisabled] = useState(true);
 
-    const [signingData, setSigningData] = useState({
-        thename: '',
-        theemail: '',
-        thepasswd: ''
-    });
+    const [signingData, setSigningData] = useState({});
 
     const signingSchema = Joi.object({
         thename: Joi.string().min(3).max(30).required(),
@@ -26,7 +22,7 @@ const Generate = (props) => {
     });
 
     const cleanUp = () => {
-        setSigningData({ theemail: "", thename: "", thepasswd: "" });
+        setSigningData({});
         refTheEmail.current.value = "";
         refTheName.current.value = "";
         refThePasswd.current.value = "";
@@ -34,8 +30,6 @@ const Generate = (props) => {
 
     const clickGenerate = (e) => {
         e.preventDefault();
-
-        setSigningData({...signingData, thetag: randomBytes(4).toString('hex')});
 
         generateKey({
             type: 'ecc',
@@ -51,19 +45,22 @@ const Generate = (props) => {
         }).then((kee) => {            
             cleanUp();
 
+            const theTag = randomBytes(4).toString('hex');
+
             let zip = new JSZip();
-            zip.file("handshake-sign-" + signingData.thetag + ".priv", kee.privateKey);
-            zip.file("handshake-sign-" + signingData.thetag + ".pub", kee.publicKey);
+            zip.file("handshake-sign-" + theTag + ".priv", kee.privateKey);
+            zip.file("handshake-sign-" + theTag + ".pub", kee.publicKey);
 
             if(JSZip.support.uint8array) {
                 zip.generateAsync({type: 'blob'}).then((blob) => {
-                    saveAs(blob, "handshake-sign-" + signingData.thetag + ".zip");
+                    saveAs(blob, "handshake-sign-" + theTag + ".zip");
                 });
             }
         });
     };
 
     useEffect(() => {
+        console.log(signingData);
         let val1 = signingSchema.validate(signingData);
         setClickGenerateDisabled(val1.error);
     }, [signingData]);
