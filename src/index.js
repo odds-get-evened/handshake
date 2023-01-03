@@ -12,7 +12,7 @@ const Main = (props) => {
             <Container>
                 <Row>
                     <Col lg={12}>
-                        <h1>handshake <Badge bg='dark'>v0.0.3</Badge></h1>
+                        <h1>handshake <Badge bg='dark'>v0.0.4</Badge></h1>
                     </Col>
                 </Row>
                 <Row>

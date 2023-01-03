@@ -18,11 +18,8 @@ const EGenerate = () => {
 
     const [displayLoading, setDisplayLoading] = useState(false);
 
-    const [keyData, setKeyData] = useState({
-        username: '',
-        email: '',
-        thepasswd: ''
-    });
+    const [keyData, setKeyData] = useState({});
+    
     const [disabledGenerate, setDisabledGenerate] = useState(true);
 
     const keySchema = Joi.object({
@@ -60,8 +57,6 @@ const EGenerate = () => {
     const clickGenerate = (e) => {
         e.preventDefault();
 
-        setKeyData({...keyData, thetag: randomBytes(4).toString('hex')});
-
         /**
          * disable the genreate button, until key has 
          * completed generating
@@ -77,13 +72,14 @@ const EGenerate = () => {
             passphrase: keyData.thepasswd,
             format: 'armored'
         }).then((keyPair) => {
-            let zip = new JSZip();
-            zip.file("handshake-enc-" + keyData.thetag + ".pem", keyPair.privateKey);
-            zip.file("handshake-enc-" + keyData.thetag + ".pub", keyPair.publicKey);
+            const theTag = randomBytes(4).toString('hex');
+
+            const zip = new JSZip();
+            zip.file("handshake-enc-" + theTag + ".pem", keyPair.privateKey);
 
             if(JSZip.support.uint8array) {
                 zip.generateAsync({type: 'blob'}).then((blob) => {
-                    saveAs(blob, "handshake-enc-" + keyData.thetag + ".zip");
+                    saveAs(blob, "handshake-enc-" + theTag + ".zip");
                 });
             }
             
