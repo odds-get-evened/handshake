@@ -22,8 +22,8 @@ const Main = (props) => {
                 </Row>
                 <footer className='text-center text-lg-start bg-light text-muted'>
                     <div className='text-center p-4' style={{backgroundColor: 'rgba(0, 0, 0, 0.05)'}}>
-                        &copy; 2022 copyright&nbsp;
-                        <a className='text-reset fw-bold' href="https://mintaka5.github.io/">Chris Walsh &lt;mintaka5&gt;</a>
+                        &copy; 2023 copyright&nbsp;
+                        <a className='text-reset fw-bold' href="https://odds-get-evened.github.io/">Chris Walsh &lt;odd_get_evened&gt;</a>
                     </div>
                 </footer>
             </Container>
