@@ -23,7 +23,7 @@ const Main = (props) => {
                 <footer className='text-center text-lg-start bg-light text-muted'>
                     <div className='text-center p-4' style={{backgroundColor: 'rgba(0, 0, 0, 0.05)'}}>
                         &copy; 2023 copyright&nbsp;
-                        <a className='text-reset fw-bold' href="https://odds-get-evened.github.io/">Chris Walsh &lt;odd_get_evened&gt;</a>
+                        <a className='text-reset fw-bold' href="https://odds-get-evened.github.io/">Chris Walsh &lt;odds_get_evened&gt;</a>
                     </div>
                 </footer>
             </Container>
